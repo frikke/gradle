@@ -69,12 +69,12 @@ public class CachingPatternSpecFactory extends PatternSpecFactory {
         @Override
         public boolean isSatisfiedBy(final FileTreeElement element) {
             try {
-                return resultCache.get(element.getRelativePath(), new Callable<Boolean>() {
-                    @Override
-                    public Boolean call() {
-                        return spec.isSatisfiedBy(element);
-                    }
-                });
+                if (element.isSymbolicLink() && element.isDirectory()) {
+                    // Do not cache symbolic links to directories because their filtering depends on link strategy
+                    return spec.isSatisfiedBy(element);
+                } else {
+                    return resultCache.get(element.getRelativePath(), () -> spec.isSatisfiedBy(element));
+                }
             } catch (ExecutionException e) {
                 throw UncheckedException.throwAsUncheckedException(e.getCause());
             }
