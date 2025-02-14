@@ -21,17 +21,23 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
 public class ClassData {
-    ClassData(ClassReader reader) {
-        lazyClassNode = Lazy.unsafe().of(() -> {
+    private final Lazy<ClassNode> classNode;
+    private final byte[] classContent;
+
+    public ClassData(ClassReader reader, byte[] content) {
+        this.classNode = Lazy.unsafe().of(() -> {
             ClassNode classNode = new ClassNode();
             reader.accept(classNode, 0);
             return classNode;
         });
+        this.classContent = content;
     }
 
-    private final Lazy<ClassNode> lazyClassNode;
+    public byte[] getClassContent() {
+        return classContent;
+    }
 
     public ClassNode readClassAsNode() {
-        return lazyClassNode.get();
+        return classNode.get();
     }
 }

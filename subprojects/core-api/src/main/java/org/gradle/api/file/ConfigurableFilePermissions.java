@@ -17,16 +17,26 @@
 package org.gradle.api.file;
 
 import org.gradle.api.Action;
-import org.gradle.api.Incubating;
 
 /**
  * Provides the means of specifying file and directory access permissions for all classes of system users.
  * <p>
  * For details on classes of users and file/directory permissions see {@link FilePermissions}.
- *
+ * <p>
+ * An example usage of this functionality would be configuring a copy task and explicitly specifying the destination file permissions:
+ * <pre>
+ * from(...)
+ * into(...)
+ * filePermissions {
+ *     user {
+ *         read = true
+ *         execute = true
+ *     }
+ *     other.execute = false
+ * }
+ * </pre>
  * @since 8.3
  */
-@Incubating
 public interface ConfigurableFilePermissions extends FilePermissions {
 
     /**
@@ -123,9 +133,9 @@ public interface ConfigurableFilePermissions extends FilePermissions {
      *     <li><code>w</code> if WRITING is permitted, <code>-</code> if it is not; must be 2nd in the set</li>
      *     <li><code>x</code> if EXECUTING is permitted, <code>-</code> if it is not; must be 3rd in the set</li>
      * </ul>
-     * <p>
-     * Examples:
+     *
      * <table>
+     *   <caption>Examples of Unix style permissions</caption>
      *   <tr>
      *     <th>Numeric</th>
      *     <th>Symbolic</th>
@@ -182,11 +192,32 @@ public interface ConfigurableFilePermissions extends FilePermissions {
      *     <td>owner can read, write &amp; execute; group can only read; others have no permissions</td>
      *   </tr>
      * </table>
+     * <p>
+     * An example usage of this method would be configuring a copy task and explicitly specifying the destination file permissions:
+     * <pre>
+     * from(...)
+     * into(...)
+     * filePermissions { unix("r--r--r--") }
+     * </pre>
      */
     void unix(String unixNumericOrSymbolic);
 
     /**
      * Sets Unix style numeric permissions. See {@link #unix(String)} for details.
+     * <p>
+     * As described there, the value is expected to come from the range of 3 digit octal numbers,
+     * i.e. from 0 (included) to 512 (excluded).
+     * <p>
+     * When represented in octal form, the numbers have the same meaning as their string
+     * counterparts (see {@link #unix(String)}), so the following statements are all equivalent:
+     *
+     * <pre>
+     *   unix("0740")         // octal number as string
+     *   unix("740")          // octal number as string (no prefix)
+     *   unix(0740)           // octal int literal
+     *   unix(482)            // decimal int literal
+     *   unix("rwxr-----")    // non-numeric string
+     * </pre>
      */
     void unix(int unixNumeric);
 

@@ -35,6 +35,7 @@ import org.gradle.internal.buildtree.NestedBuildTree;
 import org.gradle.internal.concurrent.CompositeStoppable;
 import org.gradle.internal.concurrent.Stoppable;
 import org.gradle.internal.event.ListenerManager;
+import org.gradle.internal.scopeids.id.BuildInvocationScopeId;
 import org.gradle.util.Path;
 
 import javax.annotation.Nullable;
@@ -108,7 +109,7 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
     }
 
     @Override
-    public IncludedBuildState addIncludedBuild(BuildDefinition buildDefinition) {
+    public IncludedBuildState addIncludedBuild(BuildDefinition buildDefinition, BuildState referrer) {
         return registerBuild(buildDefinition, false, null);
     }
 
@@ -134,7 +135,7 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
 
     @Override
     public IncludedBuildState getIncludedBuild(BuildIdentifier buildIdentifier) {
-        BuildState includedBuildState = buildsByIdentifier.get(buildIdentifier);
+        BuildState includedBuildState = findBuild(buildIdentifier);
         if (!(includedBuildState instanceof IncludedBuildState)) {
             throw new IllegalArgumentException("Could not find " + buildIdentifier);
         }
@@ -143,11 +144,16 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
 
     @Override
     public BuildState getBuild(BuildIdentifier buildIdentifier) {
-        BuildState buildState = buildsByIdentifier.get(buildIdentifier);
+        BuildState buildState = findBuild(buildIdentifier);
         if (buildState == null) {
             throw new IllegalArgumentException("Could not find " + buildIdentifier);
         }
         return buildState;
+    }
+
+    @Override
+    public BuildState findBuild(BuildIdentifier buildIdentifier) {
+        return buildsByIdentifier.get(buildIdentifier);
     }
 
     @Override
@@ -179,7 +185,7 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
     }
 
     @Override
-    public NestedBuildTree addNestedBuildTree(BuildDefinition buildDefinition, BuildState owner, @Nullable String buildName) {
+    public NestedBuildTree addNestedBuildTree(BuildInvocationScopeId buildInvocationScopeId, BuildDefinition buildDefinition, BuildState owner, @Nullable String buildName) {
         if (buildDefinition.getName() != null || buildDefinition.getBuildRootDir() != null) {
             throw new UnsupportedOperationException("Not yet implemented."); // but should be
         }
@@ -188,7 +194,7 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
         validateNameIsNotBuildSrc(name, dir);
         Path identityPath = assignPath(owner, name, dir);
         BuildIdentifier buildIdentifier = idFor(identityPath);
-        return buildStateFactory.createNestedTree(buildDefinition, buildIdentifier, identityPath, owner);
+        return buildStateFactory.createNestedTree(buildInvocationScopeId, buildDefinition, buildIdentifier, identityPath, owner);
     }
 
     @Override
@@ -265,13 +271,6 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
 
     private static boolean isPrefix(File prefix, File toCheck) {
         return toCheck.toPath().toAbsolutePath().startsWith(prefix.toPath().toAbsolutePath());
-    }
-
-    @Override
-    public void resetStateForAllBuilds() {
-        for (BuildState build : buildsByIdentifier.values()) {
-            build.resetModel();
-        }
     }
 
     @Override

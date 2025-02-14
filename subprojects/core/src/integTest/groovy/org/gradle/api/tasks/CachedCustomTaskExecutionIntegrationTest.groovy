@@ -16,19 +16,19 @@
 
 package org.gradle.api.tasks
 
-
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.DirectoryBuildCacheFixture
 import org.gradle.integtests.fixtures.TestBuildCache
-import org.gradle.integtests.fixtures.executer.GradleContextualExecuter
+import org.gradle.integtests.fixtures.ToBeFixedForConfigurationCache
+import org.gradle.integtests.fixtures.ToBeFixedForIsolatedProjects
 import org.gradle.internal.reflect.validation.ValidationMessageChecker
 import org.gradle.test.fixtures.file.TestFile
 import org.gradle.test.precondition.Requires
 import org.gradle.test.preconditions.IntegTestPreconditions
-import spock.lang.IgnoreIf
 import spock.lang.Issue
 
 import static org.gradle.api.tasks.LocalStateFixture.defineTaskWithLocalState
+import static org.gradle.integtests.fixtures.ToBeFixedForConfigurationCache.Skip.INVESTIGATE
 import static org.gradle.util.internal.TextUtil.escapeString
 
 class CachedCustomTaskExecutionIntegrationTest extends AbstractIntegrationSpec implements DirectoryBuildCacheFixture, ValidationMessageChecker {
@@ -150,6 +150,7 @@ class CachedCustomTaskExecutionIntegrationTest extends AbstractIntegrationSpec i
         executedAndNotSkipped ":customTask"
     }
 
+    @ToBeFixedForConfigurationCache(skip = INVESTIGATE)
     def "cacheable task with multiple outputs declared via runtime API with matching cardinality get cached"() {
         buildFile << """
             task customTask {
@@ -454,6 +455,7 @@ class CachedCustomTaskExecutionIntegrationTest extends AbstractIntegrationSpec i
         file("build").listFiles().sort() as List == [file("build/output-a.txt"), file("build/output-b.txt")]
     }
 
+    @ToBeFixedForConfigurationCache(skip = INVESTIGATE)
     def "missing #type output from runtime API is not cached"() {
         given:
         file("input.txt") << "data"
@@ -570,6 +572,7 @@ class CachedCustomTaskExecutionIntegrationTest extends AbstractIntegrationSpec i
         file("build/empty").assertIsEmptyDir()
     }
 
+    @ToBeFixedForConfigurationCache(skip = INVESTIGATE)
     def "reports useful error when output #expected is expected but #actual is produced"() {
         given:
         file("input.txt") << "data"
@@ -779,11 +782,13 @@ class CachedCustomTaskExecutionIntegrationTest extends AbstractIntegrationSpec i
         api = useRuntimeApi ? "runtime" : "annotation"
     }
 
-    @IgnoreIf({ GradleContextualExecuter.parallel })
+    @Requires(IntegTestPreconditions.NotParallelExecutor)
     @Issue("https://github.com/gradle/gradle/issues/3537")
+    @ToBeFixedForIsolatedProjects(because = "subprojects")
     def "concurrent access to local cache works"() {
-        def projectNames = GroovyCollections.combinations(('a'..'p'), ('a'..'p'), ('a'..'d'))*.join("")
+        String[] projectNames = GroovyCollections.combinations(('a'..'p'), ('a'..'p'), ('a'..'d'))*.join("")
         println "Running with ${projectNames.size()} projects"
+        createDirs(projectNames)
         projectNames.each { projectName ->
             settingsFile << "include '$projectName'\n"
         }

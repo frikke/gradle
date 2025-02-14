@@ -17,17 +17,25 @@
 package gradlebuild.docs;
 
 import dev.adamko.dokkatoo.DokkatooExtension;
+import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceLinkSpec;
 import dev.adamko.dokkatoo.dokka.parameters.DokkaSourceSetSpec;
 import dev.adamko.dokkatoo.dokka.plugins.DokkaHtmlPluginParameters;
 import dev.adamko.dokkatoo.formats.DokkatooHtmlPlugin;
 import dev.adamko.dokkatoo.tasks.DokkatooGenerateTask;
+import gradlebuild.basics.BuildEnvironmentKt;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.Directory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.TaskProvider;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Locale;
 
 public class GradleKotlinDslReferencePlugin implements Plugin<Project> {
 
@@ -55,6 +63,29 @@ public class GradleKotlinDslReferencePlugin implements Plugin<Project> {
         renameModule(project);
         wireInArtificialSourceSet(project, extension);
         setStyling(project, extension);
+        overrideDokkaVersion(project, extension);
+        setMemoryForWorkers(project);
+    }
+
+    private static void setMemoryForWorkers(Project project) {
+        project.getTasks().withType(DokkatooGenerateTask.class).configureEach(task -> {
+            task.getWorkerMinHeapSize().set("512m");
+            task.getWorkerMaxHeapSize().set("2g");
+        });
+    }
+
+    private static void setStyling(Project project, GradleDocumentationExtension extension) {
+        getDokkatooExtension(project).getPluginsConfiguration().named("html", DokkaHtmlPluginParameters.class, config -> {
+            config.getCustomStyleSheets().from(extension.getSourceRoot().file("kotlin/styles/gradle.css"));
+            config.getCustomAssets().from(extension.getSourceRoot().file("kotlin/images/gradle-logo.svg"));
+            config.getFooterMessage().set("Gradle Kotlin DSL Reference");
+        });
+    }
+
+    private static void overrideDokkaVersion(Project project, GradleDocumentationExtension extension) {
+        Property<String> dokkaVersionOverride = extension.getKotlinDslReference().getDokkaVersionOverride();
+        Property<String> defaultDokkaVersion = getDokkatooExtension(project).getVersions().getJetbrainsDokka();
+        defaultDokkaVersion.set(dokkaVersionOverride.convention(defaultDokkaVersion.get()));
     }
 
     /**
@@ -74,29 +105,52 @@ public class GradleKotlinDslReferencePlugin implements Plugin<Project> {
 
         NamedDomainObjectContainer<DokkaSourceSetSpec> kotlinSourceSet = getDokkatooExtension(project).getDokkatooSourceSets();
         kotlinSourceSet.register("kotlin_dsl", spec -> {
-            spec.getDisplayName().set("Kotlin DSL");
+            spec.getDisplayName().set("DSL");
             spec.getSourceRoots().from(extension.getKotlinDslSource());
             spec.getSourceRoots().from(runtimeExtensions.flatMap(GradleKotlinDslRuntimeGeneratedSources::getGeneratedSources));
             spec.getClasspath().from(extension.getClasspath());
             spec.getClasspath().from(runtimeExtensions.flatMap(GradleKotlinDslRuntimeGeneratedSources::getGeneratedClasses));
             spec.getIncludes().from(extension.getSourceRoot().file("kotlin/Module.md"));
+            configureSourceLinks(project, extension, spec);
         });
 
         NamedDomainObjectContainer<DokkaSourceSetSpec> javaSourceSet = getDokkatooExtension(project).getDokkatooSourceSets();
         javaSourceSet.register("java_api", spec -> {
-            spec.getDisplayName().set("Java API");
+            spec.getDisplayName().set("API");
             spec.getSourceRoots().from(extension.getDocumentedSource());
             spec.getClasspath().from(extension.getClasspath());
             spec.getIncludes().from(extension.getSourceRoot().file("kotlin/Module.md"));
+            configureSourceLinks(project, extension, spec);
         });
     }
 
-    private static void setStyling(Project project, GradleDocumentationExtension extension) {
-        getDokkatooExtension(project).getPluginsConfiguration().named("html", DokkaHtmlPluginParameters.class, config -> {
-            config.getCustomStyleSheets().from(extension.getSourceRoot().file("kotlin/styles/gradle.css"));
-            config.getCustomAssets().from(extension.getSourceRoot().file("kotlin/images/gradle-logo.svg"));
-            config.getFooterMessage().set("Gradle Kotlin DSL Reference");
-        });
+    private static void configureSourceLinks(Project project, GradleDocumentationExtension extension, DokkaSourceSetSpec spec) {
+        String commitId = BuildEnvironmentKt.getBuildEnvironmentExtension(project).getGitCommitId().get();
+        if (commitId.isBlank() || commitId.toLowerCase(Locale.ROOT).contains("unknown")) {
+            // we can't figure out the commit ID (probably this is a source distribution build), let's skip adding source links
+            return;
+        }
+
+        extension.getSourceRoots().getFiles()
+            .forEach(
+                file -> {
+                    DokkaSourceLinkSpec sourceLinkSpec = project.getObjects().newInstance(DokkaSourceLinkSpec.class);
+                    sourceLinkSpec.getLocalDirectory().set(file);
+                    URI uri = toUri(project.getRootDir(), file, commitId);
+                    sourceLinkSpec.getRemoteUrl().set(uri);
+                    sourceLinkSpec.getRemoteLineSuffix().set("#L");
+                    spec.getSourceLinks().add(sourceLinkSpec);
+                }
+            );
+    }
+
+    private static URI toUri(File projectRootDir, File file, String commitId) {
+        try {
+            URI relativeLocation = projectRootDir.toURI().relativize(file.toURI());
+            return new URI("https://github.com/gradle/gradle/blob/" + commitId + "/" + relativeLocation);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static DokkatooExtension getDokkatooExtension(Project project) {

@@ -17,9 +17,7 @@
 package org.gradle.api.tasks
 
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
-import org.gradle.internal.reflect.problems.ValidationProblemId
 import org.gradle.internal.reflect.validation.ValidationMessageChecker
-import org.gradle.internal.reflect.validation.ValidationTestFor
 import org.gradle.test.precondition.Requires
 import org.gradle.test.preconditions.UnitTestPreconditions
 
@@ -30,6 +28,11 @@ import java.nio.file.StandardCopyOption
 class IncrementalBuildSymlinkHandlingIntegrationTest extends AbstractIntegrationSpec implements ValidationMessageChecker {
     def setup() {
         expectReindentedValidationMessage()
+
+        // Must run on isolated daemons so that symlink data can be properly cleaned up between builds
+        executer.requireDaemon()
+        executer.requireIsolatedDaemons()
+
         buildFile << """
 // This is a workaround to bust the JVM's file canonicalization cache
 def f = file("delete-me")
@@ -128,9 +131,6 @@ task work {
         result.assertTasksSkipped(":work")
     }
 
-    @ValidationTestFor(
-        ValidationProblemId.INPUT_FILE_DOES_NOT_EXIST
-    )
     def "symlink may not reference missing input file"() {
         file("in-dir").createDir()
         def link = file("in.txt")

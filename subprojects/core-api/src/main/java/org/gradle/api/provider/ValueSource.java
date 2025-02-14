@@ -45,14 +45,23 @@ import javax.inject.Inject;
  * considered as an input to the work graph cache.
  * </p>
  * <p>
- * It is possible to have some Gradle services to be injected into the implementation, similar to
- * tasks and plugins. It can be done by adding a parameter to the constructor and annotating the
+ * It is possible to have some Gradle services to be <a href="https://docs.gradle.org/current/userguide/service_injection.html#service_injection">injected</a>
+ * into the implementation, similar to tasks and plugins.
+ * It can be done by adding a parameter to the constructor and annotating the
  * constructor with the {@code @Inject} annotation:
  * <pre>
- * public class MyValueSource implements ValueSource&lt;...&gt; {
- *     &#064;Inject
+ * public abstract class MyValueSource implements ValueSource&lt;String, ValueSourceParameters.None&gt; {
+ *     private final ExecOperations execOperations;
+ *
+ *     {@literal @}Inject
  *     public MyValueSource(ExecOperations execOperations) {
- *         ...
+ *         this.execOperations = execOperations;
+ *     }
+ *
+ *     {@literal @}Override
+ *     {@literal @}Nullable
+ *     public String obtain() {
+ *         // your custom implementation
  *     }
  * }
  * </pre>
@@ -83,6 +92,12 @@ import javax.inject.Inject;
  * Starting an external process with a standard API (for example, {@code java.lang.ProcessBuilder}) is
  * also allowed.
  * </p>
+ *
+ * Implementations of ValueSource are subject to the following constraint:
+ * <ul>
+ *     <li>Do not implement {@link #getParameters()} in your class, the method will be implemented by Gradle.</li>
+ * </ul>
+ *
  * @param <T> The type of value obtained from this source.
  * @param <P> The source specific parameter type.
  * @see ProviderFactory#environmentVariable(String)

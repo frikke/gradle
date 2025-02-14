@@ -17,8 +17,6 @@
 package org.gradle.api.file;
 
 
-import org.gradle.api.Incubating;
-
 /**
  * Describes file and directory access permissions for all classes of system users.
  * <p>
@@ -31,11 +29,17 @@ import org.gradle.api.Incubating;
  *     <li>OTHER (world) permissions: what actions all other users (non-owner, non-group) can perform on the file/directory</li>
  * </ul>
  * <p>
- * For further details on specific permission for a certain class of user see {@link UserClassFilePermissions}.
+ * For further details on specific permission for a certain class of user see {@link UserClassFilePermissions}, but in essence
+ * each class of users can have the right to READ, WRITE or EXECUTE files.
+ * <p>
+ * The default permissions used differ between files and directories and are as follows:
+ * <ul>
+ *     <li>FILE: read &amp; write for OWNER, read for GROUP, read for OTHER (0644, rw-r--r--)</li>
+ *     <li>DIRECTORY: read, write &amp; execute for OWNER, read &amp; execute for GROUP, read &amp; execute for OTHER (0755, rwxr-xr-x)</li>
+ * </ul>
  *
  * @since 8.3
  */
-@Incubating
 public interface FilePermissions {
 
     /**
@@ -62,7 +66,7 @@ public interface FilePermissions {
 
     /**
      * Converts the permissions for the various user groups to a numeric Unix permission.
-     * See {@link ConfigurableFilePermissions#unix(String)} for details.
+     * See {@link ConfigurableFilePermissions#unix(int)} for details.
      */
     int toUnixNumeric();
 

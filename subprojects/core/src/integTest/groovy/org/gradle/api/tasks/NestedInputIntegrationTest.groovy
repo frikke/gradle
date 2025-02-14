@@ -16,19 +16,17 @@
 
 package org.gradle.api.tasks
 
-import groovy.test.NotYetImplemented
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.DirectoryBuildCacheFixture
+import org.gradle.integtests.fixtures.ToBeFixedForConfigurationCache
 import org.gradle.integtests.fixtures.UnsupportedWithConfigurationCache
-import org.gradle.integtests.fixtures.executer.GradleContextualExecuter
-import org.gradle.internal.reflect.problems.ValidationProblemId
 import org.gradle.internal.reflect.validation.ValidationMessageChecker
-import org.gradle.internal.reflect.validation.ValidationTestFor
 import org.gradle.test.fixtures.file.TestFile
-import spock.lang.IgnoreIf
 import spock.lang.Issue
+
+import static org.gradle.integtests.fixtures.ToBeFixedForConfigurationCache.Skip.INVESTIGATE
 
 class NestedInputIntegrationTest extends AbstractIntegrationSpec implements DirectoryBuildCacheFixture, ValidationMessageChecker {
 
@@ -471,9 +469,6 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
 
     }
 
-    @ValidationTestFor(
-        ValidationProblemId.VALUE_NOT_SET
-    )
     def "null on nested bean is validated #description"() {
         buildFile << nestedBeanWithStringInput()
         buildFile << """
@@ -788,7 +783,6 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
     }
 
     @Issue("https://github.com/gradle/gradle/issues/24594")
-    @ValidationTestFor(ValidationProblemId.NESTED_MAP_UNSUPPORTED_KEY_TYPE)
     def "nested map with #type key is validated without warning"() {
         buildFile << nestedBeanWithStringInput()
         buildFile << """
@@ -833,7 +827,6 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
     }
 
     @Issue("https://github.com/gradle/gradle/issues/24594")
-    @ValidationTestFor(ValidationProblemId.NESTED_MAP_UNSUPPORTED_KEY_TYPE)
     def "nested map with unsupported key type is validated with warning"() {
         buildFile << nestedBeanWithStringInput()
         buildFile << """
@@ -875,7 +868,6 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
     }
 
     @Issue("https://github.com/gradle/gradle/issues/23049")
-    @ValidationTestFor(ValidationProblemId.NESTED_TYPE_UNSUPPORTED)
     def "nested #type#parameterType is validated with warning"() {
         buildFile << """
             abstract class CustomTask extends DefaultTask {
@@ -893,7 +885,7 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
 
         expectThatExecutionOptimizationDisabledWarningIsDisplayed(executer,
             "Type 'CustomTask' property 'my$type' with nested type '$className' is not supported. " +
-                "Reason: Nested types are expected to either declare some annotated properties or some behaviour that requires capturing the type as input.",
+                "Reason: $reason",
             'validation_problems',
             'unsupported_nested_type')
 
@@ -901,18 +893,17 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
         succeeds("customTask")
 
         where:
-        type       | parameterType      | producer                                               | className
-        'File'     | ''                 | 'new File("some/path")'                                | 'java.io.File'
-        'Integer'  | ''                 | 'Integer.valueOf(1)'                                   | 'java.lang.Integer'
-        'String'   | ''                 | 'new String()'                                         | 'java.lang.String'
-        'GString'  | ''                 | 'GString.EMPTY'                                        | 'groovy.lang.GString$1'
-        'Iterable' | '<Integer>'        | '[[Integer.valueOf(1)], [Integer.valueOf(2)]]'         | 'java.lang.Integer'
-        'List'     | '<String>'         | '["value1", "value2"]'                                 | 'java.lang.String'
-        'Map'      | '<String,Integer>' | '[a: Integer.valueOf(1), b: Integer.valueOf(2)]'       | 'java.lang.Integer'
+        type       | parameterType      | producer                                         | className               | reason
+        'File'     | ''                 | 'new File("some/path")'                          | 'java.io.File'          | "Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types."
+        'Integer'  | ''                 | 'Integer.valueOf(1)'                             | 'java.lang.Integer'     | "Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types."
+        'String'   | ''                 | 'new String()'                                   | 'java.lang.String'      | "Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types."
+        'GString'  | ''                 | 'GString.EMPTY'                                  | 'groovy.lang.GString$1' | "Groovy's GString type is not supported as a nested type."
+        'Iterable' | '<Integer>'        | '[[Integer.valueOf(1)], [Integer.valueOf(2)]]'   | 'java.lang.Integer'     | "Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types."
+        'List'     | '<String>'         | '["value1", "value2"]'                           | 'java.lang.String'      | "Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types."
+        'Map'      | '<String,Integer>' | '[a: Integer.valueOf(1), b: Integer.valueOf(2)]' | 'java.lang.Integer'     | "Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types."
     }
 
     @Issue("https://github.com/gradle/gradle/issues/23049")
-    @ValidationTestFor(ValidationProblemId.NESTED_TYPE_UNSUPPORTED)
     def "nested Provider<Boolean> is validated with warning"() {
         buildFile << """
             abstract class CustomTask extends DefaultTask {
@@ -928,7 +919,7 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
 
         expectThatExecutionOptimizationDisabledWarningIsDisplayed(executer,
             "Type 'CustomTask' property 'myProvider' with nested type 'java.lang.Boolean' is not supported. " +
-                "Reason: Nested types are expected to either declare some annotated properties or some behaviour that requires capturing the type as input.",
+                "Reason: Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types.",
             'validation_problems',
             'unsupported_nested_type')
 
@@ -937,7 +928,6 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
     }
 
     @Issue("https://github.com/gradle/gradle/issues/23049")
-    @ValidationTestFor(ValidationProblemId.NESTED_TYPE_UNSUPPORTED)
     def "nested #type#parameterType is validated without warning"() {
         buildFile << nestedBeanWithStringInput()
         buildFile << """
@@ -968,7 +958,6 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
     }
 
     @Issue("https://github.com/gradle/gradle/issues/23049")
-    @ValidationTestFor(ValidationProblemId.NESTED_TYPE_UNSUPPORTED)
     def "nested Provider<NestedBean> is validated without warning"() {
         buildFile << nestedBeanWithStringInput()
         buildFile << """
@@ -988,7 +977,6 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
     }
 
     @Issue("https://github.com/gradle/gradle/issues/23049")
-    @ValidationTestFor(ValidationProblemId.NESTED_TYPE_UNSUPPORTED)
     def "nested Kotlin #type is validated with warning"() {
         buildKotlinFile << """
             abstract class CustomTask : DefaultTask() {
@@ -1004,7 +992,7 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
 
         expectThatExecutionOptimizationDisabledWarningIsDisplayed(executer,
             "Type 'Build_gradle.CustomTask' property 'my$type' with nested type '$className' is not supported. " +
-                "Reason: Nested types are expected to either declare some annotated properties or some behaviour that requires capturing the type as input.",
+                "Reason: $reason",
             'validation_problems',
             'unsupported_nested_type')
 
@@ -1012,29 +1000,42 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
         succeeds("customTask")
 
         where:
-        type                | producer                    | className
-        'DeprecationLevel'  | 'DeprecationLevel.WARNING'  | 'kotlin.DeprecationLevel'
-        'Int'               | 'Int.MIN_VALUE'             | 'java.lang.Integer'
-        'String'            | '"abc"'                     | 'java.lang.String'
+        type               | producer                   | className                 | reason
+        'DeprecationLevel' | 'DeprecationLevel.WARNING' | 'kotlin.DeprecationLevel' | "Type is in 'kotlin.*' package that is reserved for Kotlin stdlib types."
+        'Int'              | 'Int.MIN_VALUE'            | 'java.lang.Integer'       | "Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types."
+        'String'           | '"abc"'                    | 'java.lang.String'        | "Type is in 'java.*' or 'javax.*' package that are reserved for standard Java API types."
     }
 
-    private static String namedBeanClass() {
-        """
-            class NamedBean implements Named {
-                @Internal final String name
-                @Input final String value
+    @Issue("https://github.com/gradle/gradle/issues/26018")
+    def "nested Kotlin #type from kotlinx package is validated without warning"() {
+        testDirectory.file("buildSrc/src/main/java/kotlinx/NestedBean.java") << """
+            import org.gradle.api.provider.*;
+            import org.gradle.api.tasks.*;
 
-                NamedBean(name, value) {
-                    this.name = name
-                    this.value = value
-                }
+            public interface NestedBean {
+                @Input
+                @Optional
+                public Property<String> getValue();
             }
         """
+
+        buildFile << """
+            abstract class CustomTask extends DefaultTask {
+                @Nested
+                abstract NestedBean getMyKotlinx()
+
+                @TaskAction
+                void execute() { }
+            }
+
+            tasks.register("customTask", CustomTask) { }
+        """
+
+        expect:
+        succeeds("customTask")
     }
 
-    @ValidationTestFor(
-        ValidationProblemId.UNKNOWN_IMPLEMENTATION
-    )
+    @ToBeFixedForConfigurationCache(skip = INVESTIGATE)
     def "task with nested bean loaded with custom classloader disables execution optimizations"() {
         file("input.txt").text = "data"
         buildFile << taskWithNestedBeanFromCustomClassLoader()
@@ -1232,9 +1233,6 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
         project2.file('build/tmp/myTask/output.txt').text == "hello"
     }
 
-    @NotYetImplemented
-    // TODO: Remove IgnoreIf embedded when issue is fixed
-    @IgnoreIf({ GradleContextualExecuter.embedded })
     @Issue("https://github.com/gradle/gradle/issues/24405")
     def "nested bean as input with null string is serialized correctly"() {
         buildFile << """
@@ -1267,10 +1265,15 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
             }
         """
 
-        expect:
-        // TODO: Remove `requireIsolatedDaemons` once the issue is fixed
-        executer.requireIsolatedDaemons()
+        when:
         succeeds "crashTask"
+        then:
+        executedAndNotSkipped ":crashTask"
+
+        when:
+        succeeds "crashTask"
+        then:
+        skipped ":crashTask"
     }
 
     private TestFile nestedBeanWithAction(TestFile projectDir = temporaryFolder.testDirectory) {
@@ -1337,4 +1340,17 @@ class NestedInputIntegrationTest extends AbstractIntegrationSpec implements Dire
         """
     }
 
+    private static String namedBeanClass() {
+        """
+            class NamedBean implements Named {
+                @Internal final String name
+                @Input final String value
+
+                NamedBean(name, value) {
+                    this.name = name
+                    this.value = value
+                }
+            }
+        """
+    }
 }

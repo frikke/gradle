@@ -19,6 +19,7 @@ import org.gradle.StartParameter;
 import org.gradle.api.Action;
 import org.gradle.api.UnknownProjectException;
 import org.gradle.api.cache.CacheConfigurations;
+import org.gradle.api.file.BuildLayout;
 import org.gradle.api.initialization.ConfigurableIncludedBuild;
 import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.initialization.Settings;
@@ -30,6 +31,7 @@ import org.gradle.api.internal.SettingsInternal;
 import org.gradle.api.internal.cache.CacheConfigurationsInternal;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.internal.initialization.ClassLoaderScope;
+import org.gradle.api.initialization.SharedModelDefaults;
 import org.gradle.api.internal.initialization.ScriptHandlerFactory;
 import org.gradle.api.internal.plugins.DefaultObjectConfigurationAction;
 import org.gradle.api.internal.plugins.PluginManagerInternal;
@@ -319,6 +321,10 @@ public abstract class DefaultSettings extends AbstractPluginAware implements Set
     public abstract PluginManagerInternal getPluginManager();
 
     @Override
+    @Inject
+    public abstract BuildLayout getLayout();
+
+    @Override
     public void includeBuild(Object rootProject) {
         includeBuild(rootProject, Actions.doNothing());
     }
@@ -405,5 +411,14 @@ public abstract class DefaultSettings extends AbstractPluginAware implements Set
     @Override
     public void caches(Action<? super CacheConfigurations> cachesConfiguration) {
         cachesConfiguration.execute(getCaches());
+    }
+
+    @Override
+    @Inject
+    public abstract SharedModelDefaults getDefaults();
+
+    @Override
+    public void defaults(Action<? super SharedModelDefaults> action) {
+        action.execute(getDefaults());
     }
 }

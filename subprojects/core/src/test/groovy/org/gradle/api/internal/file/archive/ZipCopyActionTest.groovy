@@ -116,7 +116,7 @@ class ZipCopyActionTest extends Specification {
         }
 
         def docRegistry = Mock(DocumentationRegistry)
-        1 * docRegistry.getDslRefForProperty(Zip, "zip64") >> "doc url"
+        1 * docRegistry.getDslRefForProperty(Zip.name, "zip64") >> "doc url"
         0 * docRegistry._
 
         visitor = new ZipCopyAction(zipFile, compressor, docRegistry, encoding, false)
@@ -158,7 +158,7 @@ class ZipCopyActionTest extends Specification {
         mock.getRelativePath() >> RelativePath.parse(false, path)
         mock.getLastModified() >> 1000L
         mock.isDirectory() >> false
-        mock.getImmutablePermissions() >> new DefaultFilePermissions(1)
+        mock.getPermissions() >> new DefaultFilePermissions(1)
         mock.copyTo(_ as OutputStream) >> { OutputStream out ->
             out << "contents of $path"
         }
@@ -170,7 +170,7 @@ class ZipCopyActionTest extends Specification {
         mock.getRelativePath() >> RelativePath.parse(false, path)
         mock.getLastModified() >> 1000L
         mock.isDirectory() >> true
-        mock.getImmutablePermissions() >> new DefaultFilePermissions(2)
+        mock.getPermissions() >> new DefaultFilePermissions(2)
         mock
     }
 
@@ -179,7 +179,7 @@ class ZipCopyActionTest extends Specification {
         mock.getRelativePath() >> RelativePath.parse(false, path)
         mock.getLastModified() >> 1000L
         mock.isDirectory() >> false
-        mock.getImmutablePermissions() >> new DefaultFilePermissions(1)
+        mock.getPermissions() >> new DefaultFilePermissions(1)
         mock.copyTo(_ as OutputStream) >> { OutputStream out ->
             failure.fillInStackTrace()
             throw failure

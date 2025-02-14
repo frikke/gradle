@@ -16,8 +16,6 @@
 
 package org.gradle.api.file;
 
-import org.gradle.api.Incubating;
-
 /**
  * Describes file and directory access permissions for a certain class of users (see {@link FilePermissions}).
  * <p>
@@ -28,16 +26,9 @@ import org.gradle.api.Incubating;
  *     <li>EXECUTE access: the capability to run a file as a program; executing a directory doesn't really make sense, it's more like
  *     a traverse permission; for example, a user must have 'execute' access to the 'bin' directory in order to execute the 'ls' or 'cd' commands.</li>
  * </ul>
- * <p>
- * The default permissions used differ between files and directories and are as follows:
- * <ul>
- *     <li>FILE: read &amp; write for OWNER, read for GROUP, read for OTHER (0644, r-wr--r--)</li>
- *     <li>DIRECTORY: read, write &amp; execute for OWNER, read &amp; execute for GROUP, read &amp; execute for OTHER (0755, rwxr-xr-x)</li>
- * </ul>
  *
  * @since 8.3
  */
-@Incubating
 public interface UserClassFilePermissions {
 
     /**

@@ -22,28 +22,28 @@ import org.gradle.api.tasks.OutputFiles
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.BuildOperationsFixture
 import org.gradle.integtests.fixtures.DirectoryBuildCacheFixture
+import org.gradle.operations.execution.CachingDisabledReasonCategory
+import org.gradle.test.fixtures.Flaky
 import org.gradle.test.precondition.Requires
 import org.gradle.test.preconditions.IntegTestPreconditions
 
 import javax.annotation.Nullable
 
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.BUILD_CACHE_DISABLED
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.CACHE_IF_SPEC_NOT_SATISFIED
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.DO_NOT_CACHE_IF_SPEC_SATISFIED
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.NON_CACHEABLE_TREE_OUTPUT
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.NOT_ENABLED_FOR_TASK
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.NO_OUTPUTS_DECLARED
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.OVERLAPPING_OUTPUTS
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.UNKNOWN
-import static org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory.VALIDATION_FAILURE
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.BUILD_CACHE_DISABLED
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.CACHE_IF_SPEC_NOT_SATISFIED
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.DO_NOT_CACHE_IF_SPEC_SATISFIED
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.NON_CACHEABLE_TREE_OUTPUT
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.NOT_ENABLED_FOR_TASK
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.NO_OUTPUTS_DECLARED
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.OVERLAPPING_OUTPUTS
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.UNKNOWN
+import static org.gradle.operations.execution.CachingDisabledReasonCategory.VALIDATION_FAILURE
 
 class TaskCacheabilityReasonIntegrationTest extends AbstractIntegrationSpec implements DirectoryBuildCacheFixture {
     def operations = new BuildOperationsFixture(executer, testDirectoryProvider)
 
     def setup() {
         buildFile """
-            import org.gradle.api.internal.tasks.TaskOutputCachingDisabledReasonCategory
-
             class UnspecifiedCacheabilityTask extends DefaultTask {
                 @Input
                 String message = "Hello World"
@@ -254,6 +254,7 @@ class TaskCacheabilityReasonIntegrationTest extends AbstractIntegrationSpec impl
         annotation << [OutputFiles.simpleName, OutputDirectories.simpleName]
     }
 
+    @Flaky(because = "https://github.com/gradle/gradle-private/issues/4206")
     def "cacheability for a task with overlapping outputs is OVERLAPPING_OUTPUTS"() {
         buildFile """
             task cacheable(type: Cacheable)
@@ -392,7 +393,7 @@ class TaskCacheabilityReasonIntegrationTest extends AbstractIntegrationSpec impl
         executer.noDeprecationChecks()
         buildFile """
             import org.gradle.integtests.fixtures.validation.ValidationProblem
-            import org.gradle.internal.reflect.validation.Severity
+            import org.gradle.api.problems.Severity
 
             @CacheableTask
             abstract class InvalidTask extends DefaultTask {
@@ -452,7 +453,7 @@ class TaskCacheabilityReasonIntegrationTest extends AbstractIntegrationSpec impl
         [taskType, condition] << [["UnspecifiedCacheabilityTask", "NotCacheableByDefault", "NotCacheableByDefaultWithReason"], ["cacheIf { true }", "cacheIf('cache-if reason') { true }"]].combinations()
     }
 
-    private void assertCachingDisabledFor(@Nullable TaskOutputCachingDisabledReasonCategory category, @Nullable String message, @Nullable String taskPath = null) {
+    private void assertCachingDisabledFor(@Nullable CachingDisabledReasonCategory category, @Nullable String message, @Nullable String taskPath = null) {
         operations.only(ExecuteTaskBuildOperationType, {
             if (taskPath && taskPath != it.details.taskPath) {
                 return false
@@ -461,5 +462,14 @@ class TaskCacheabilityReasonIntegrationTest extends AbstractIntegrationSpec impl
             assert it.result.cachingDisabledReasonMessage == message
             return true
         })
+    }
+
+    @Override
+    AbstractIntegrationSpec withBuildCache() {
+        // When configuration cache is enabled, the task graph for cache-hit builds will be loaded from the cache and tasks will run in parallel and start in an arbitrary order
+        // Use max-workers=1 to force non-parallel execution and the tasks to run in the specified order
+        // (--no-parallel doesn't have an effect with CC, but max-workers should affect both CC and parallel executors)
+        args("--max-workers=1")
+        return super.withBuildCache()
     }
 }

@@ -16,13 +16,15 @@
 package org.gradle.api.internal.initialization;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
+import org.gradle.api.NonExtensible;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.DependencyLockingHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.initialization.dsl.ScriptHandler;
-import org.gradle.api.internal.DynamicObjectAware;
 import org.gradle.api.internal.artifacts.DependencyResolutionServices;
 import org.gradle.api.internal.artifacts.JavaEcosystemSupport;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationRolesForMigration;
@@ -30,17 +32,21 @@ import org.gradle.api.internal.artifacts.configurations.RoleBasedConfigurationCo
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.groovy.scripts.ScriptSource;
+import org.gradle.internal.Factory;
 import org.gradle.internal.classloader.ClasspathUtil;
 import org.gradle.internal.classpath.ClassPath;
-import org.gradle.internal.metaobject.BeanDynamicObject;
-import org.gradle.internal.metaobject.DynamicObject;
+import org.gradle.internal.deprecation.DeprecationLogger;
 import org.gradle.internal.resource.ResourceLocation;
 import org.gradle.util.internal.ConfigureUtil;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.net.URI;
 
-public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInternal, DynamicObjectAware {
+import static java.lang.Boolean.getBoolean;
+
+@NonExtensible
+public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInternal {
 
     /**
      * If set to {@code true}, the buildscript's {@code classpath} configuration will not be reset after the
@@ -52,24 +58,32 @@ public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInterna
 
     private final ResourceLocation scriptResource;
     private final ClassLoaderScope classLoaderScope;
-    private final ScriptClassPathResolver scriptClassPathResolver;
     private final DependencyResolutionServices dependencyResolutionServices;
-    private final DependencyLockingHandler dependencyLockingHandler;
+    private final BuildLogicBuilder buildLogicBuilder;
+
     // The following values are relatively expensive to create, so defer creation until required
-    private ClassPath resolvedClasspath;
     private RepositoryHandler repositoryHandler;
     private DependencyHandler dependencyHandler;
+    private DependencyLockingHandler dependencyLockingHandler;
     private RoleBasedConfigurationContainerInternal configContainer;
-    private Configuration classpathConfiguration;
-    private DynamicObject dynamicObject;
 
-    public DefaultScriptHandler(ScriptSource scriptSource, DependencyResolutionServices dependencyResolutionServices, ClassLoaderScope classLoaderScope, ScriptClassPathResolver scriptClassPathResolver) {
+    // Lazy classpath state
+    private ScriptClassPathResolutionContext resolutionContext;
+    private Configuration classpathConfiguration;
+    private ClassPath resolvedClasspath;
+
+    @Inject
+    public DefaultScriptHandler(
+        ScriptSource scriptSource,
+        DependencyResolutionServices dependencyResolutionServices,
+        ClassLoaderScope classLoaderScope,
+        BuildLogicBuilder buildLogicBuilder
+    ) {
         this.dependencyResolutionServices = dependencyResolutionServices;
         this.scriptResource = scriptSource.getResource().getLocation();
         this.classLoaderScope = classLoaderScope;
-        this.scriptClassPathResolver = scriptClassPathResolver;
-        this.dependencyLockingHandler = dependencyResolutionServices.getDependencyLockingHandler();
-        JavaEcosystemSupport.configureSchema(dependencyResolutionServices.getAttributesSchema(), dependencyResolutionServices.getObjectFactory());
+        this.buildLogicBuilder = buildLogicBuilder;
+        JavaEcosystemSupport.configureServices(dependencyResolutionServices.getAttributesSchema(), dependencyResolutionServices.getAttributeDescribers(), dependencyResolutionServices.getObjectFactory());
     }
 
     @Override
@@ -78,8 +92,9 @@ public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInterna
     }
 
     @Override
-    public void addScriptClassPathDependency(Object notation) {
-        getDependencies().add(ScriptHandler.CLASSPATH_CONFIGURATION, notation);
+    public void addScriptClassPathDependency(Dependency dependency) {
+        defineConfiguration();
+        classpathConfiguration.getDependencies().add(dependency);
     }
 
     @Override
@@ -90,9 +105,15 @@ public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInterna
     @Override
     public ClassPath getInstrumentedScriptClassPath() {
         if (resolvedClasspath == null) {
-            resolvedClasspath = scriptClassPathResolver.resolveClassPath(classpathConfiguration);
-            if (!System.getProperty(DISABLE_RESET_CONFIGURATION_SYSTEM_PROPERTY, "false").equals("true") && classpathConfiguration != null) {
-                ((ResettableConfiguration) classpathConfiguration).resetResolutionState();
+            if (classpathConfiguration != null) {
+                Factory<ClassPath> classPathFactory = () -> buildLogicBuilder.resolveClassPath(classpathConfiguration, resolutionContext);
+                if (getBoolean(DISABLE_RESET_CONFIGURATION_SYSTEM_PROPERTY)) {
+                    resolvedClasspath = classPathFactory.create();
+                } else {
+                    resolvedClasspath = ((ResettableConfiguration) classpathConfiguration).callAndResetResolutionState(classPathFactory);
+                }
+            } else {
+                resolvedClasspath = ClassPath.EMPTY;
             }
         }
         return resolvedClasspath;
@@ -123,6 +144,11 @@ public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInterna
         return configContainer;
     }
 
+    @Override
+    public void configurations(Action<? super ConfigurationContainer> configureClosure) {
+        configureClosure.execute(getConfigurations());
+    }
+
     @SuppressWarnings("deprecation")
     private void defineConfiguration() {
         // Defer creation and resolution of configuration until required. Short-circuit when script does not require classpath
@@ -131,10 +157,17 @@ public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInterna
         }
         if (dependencyHandler == null) {
             dependencyHandler = dependencyResolutionServices.getDependencyHandler();
+            resolutionContext = buildLogicBuilder.prepareDependencyHandler(dependencyHandler);
         }
         if (classpathConfiguration == null) {
-            classpathConfiguration = configContainer.createWithRole(CLASSPATH_CONFIGURATION, ConfigurationRolesForMigration.LEGACY_TO_RESOLVABLE_BUCKET);
-            scriptClassPathResolver.prepareClassPath(classpathConfiguration, dependencyHandler);
+            classpathConfiguration = configContainer.migratingUnlocked(CLASSPATH_CONFIGURATION, ConfigurationRolesForMigration.LEGACY_TO_RESOLVABLE_DEPENDENCY_SCOPE);
+            configContainer.beforeCollectionChanges(methodName ->
+                DeprecationLogger.deprecateAction("Mutating " + configContainer.getDisplayName() + " using " + methodName)
+                .willBecomeAnErrorInGradle9()
+                .withUpgradeGuideSection(8, "mutating_buildscript_configurations")
+                .nagUser()
+            );
+            buildLogicBuilder.prepareClassPath(classpathConfiguration, resolutionContext);
         }
     }
 
@@ -145,6 +178,9 @@ public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInterna
 
     @Override
     public DependencyLockingHandler getDependencyLocking() {
+        if (dependencyLockingHandler == null) {
+            dependencyLockingHandler = dependencyResolutionServices.getDependencyLockingHandler();
+        }
         return dependencyLockingHandler;
     }
 
@@ -164,13 +200,5 @@ public class DefaultScriptHandler implements ScriptHandler, ScriptHandlerInterna
             LOGGER.debug("Eager creation of script class loader for {}. This may result in performance issues.", scriptResource.getDisplayName());
         }
         return classLoaderScope.getLocalClassLoader();
-    }
-
-    @Override
-    public DynamicObject getAsDynamicObject() {
-        if (dynamicObject == null) {
-            dynamicObject = new BeanDynamicObject(this);
-        }
-        return dynamicObject;
     }
 }

@@ -17,7 +17,11 @@
 package org.gradle.process.internal.worker.request;
 
 import org.gradle.api.Action;
+import org.gradle.api.internal.initialization.loadercache.ModelClassLoaderFactory;
 import org.gradle.api.internal.tasks.properties.annotations.OutputPropertyRoleAnnotationHandler;
+import org.gradle.api.problems.internal.DefaultProblems;
+import org.gradle.api.problems.internal.ExceptionProblemRegistry;
+import org.gradle.api.problems.internal.InternalProblems;
 import org.gradle.cache.internal.DefaultCrossBuildInMemoryCacheFactory;
 import org.gradle.internal.Cast;
 import org.gradle.internal.UncheckedException;
@@ -29,18 +33,27 @@ import org.gradle.internal.instantiation.generator.DefaultInstantiatorFactory;
 import org.gradle.internal.operations.CurrentBuildOperationRef;
 import org.gradle.internal.remote.ObjectConnection;
 import org.gradle.internal.remote.internal.hub.StreamFailureHandler;
-import org.gradle.internal.service.DefaultServiceRegistry;
 import org.gradle.internal.service.ServiceRegistry;
+import org.gradle.internal.service.ServiceRegistryBuilder;
 import org.gradle.internal.service.scopes.Scope.Global;
 import org.gradle.process.internal.worker.RequestHandler;
 import org.gradle.process.internal.worker.WorkerProcessContext;
 import org.gradle.process.internal.worker.child.WorkerLogEventListener;
+import org.gradle.process.internal.worker.problem.WorkerProblemEmitter;
+import org.gradle.tooling.internal.provider.serialization.ClassLoaderCache;
+import org.gradle.tooling.internal.provider.serialization.DefaultPayloadClassLoaderRegistry;
+import org.gradle.tooling.internal.provider.serialization.PayloadSerializer;
+import org.gradle.tooling.internal.provider.serialization.WellKnownClassLoaderRegistry;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Worker-side implementation of {@link RequestProtocol} executing actions.
+ */
 public class WorkerAction implements Action<WorkerProcessContext>, Serializable, RequestProtocol, StreamFailureHandler, Stoppable, StreamCompletion {
     private final String workerImplementationName;
     private transient CountDownLatch completed;
@@ -54,9 +67,24 @@ public class WorkerAction implements Action<WorkerProcessContext>, Serializable,
         this.workerImplementationName = workerImplementation.getName();
     }
 
+    @Nonnull
+    private static PayloadSerializer createPayloadSerializer() {
+        ClassLoaderCache classLoaderCache = new ClassLoaderCache();
+        return new PayloadSerializer(
+            new WellKnownClassLoaderRegistry(
+                new DefaultPayloadClassLoaderRegistry(
+                    classLoaderCache,
+                    new ModelClassLoaderFactory())));
+    }
+
     @Override
     public void execute(WorkerProcessContext workerProcessContext) {
         completed = new CountDownLatch(1);
+
+        ObjectConnection connection = workerProcessContext.getServerConnection();
+        connection.addIncoming(RequestProtocol.class, this);
+        responder = connection.addOutgoing(ResponseProtocol.class);
+        workerLogEventListener = workerProcessContext.getServiceRegistry().get(WorkerLogEventListener.class);
 
         RequestArgumentSerializers argumentSerializers = new RequestArgumentSerializers();
         try {
@@ -64,20 +92,30 @@ public class WorkerAction implements Action<WorkerProcessContext>, Serializable,
             if (instantiatorFactory == null) {
                 instantiatorFactory = new DefaultInstantiatorFactory(new DefaultCrossBuildInMemoryCacheFactory(new DefaultListenerManager(Global.class)), Collections.emptyList(), new OutputPropertyRoleAnnotationHandler(Collections.emptyList()));
             }
-            DefaultServiceRegistry serviceRegistry = new DefaultServiceRegistry("worker-action-services", parentServices);
-            // Make the argument serializers available so work implementations can register their own serializers
-            serviceRegistry.add(RequestArgumentSerializers.class, argumentSerializers);
-            serviceRegistry.add(InstantiatorFactory.class, instantiatorFactory);
+            ServiceRegistry serviceRegistry = ServiceRegistryBuilder.builder()
+                .displayName("worker action services")
+                .parent(parentServices)
+                .provider(registration -> {
+                    // Make the argument serializers available so work implementations can register their own serializers
+                    registration.add(RequestArgumentSerializers.class, argumentSerializers);
+                    registration.add(InstantiatorFactory.class, instantiatorFactory);
+                    // TODO we should inject a worker-api specific implementation of InternalProblems here
+                    registration.add(InternalProblems.class, new DefaultProblems(
+                        new WorkerProblemEmitter(responder),
+                        null,
+                        CurrentBuildOperationRef.instance(),
+                        new ExceptionProblemRegistry(),
+                        null,
+                        instantiatorFactory.decorateLenient(),
+                        createPayloadSerializer()));
+                })
+                .build();
             Class<?> workerImplementation = Class.forName(workerImplementationName);
             implementation = Cast.uncheckedNonnullCast(instantiatorFactory.inject(serviceRegistry).newInstance(workerImplementation));
         } catch (Exception e) {
             failure = e;
         }
 
-        ObjectConnection connection = workerProcessContext.getServerConnection();
-        connection.addIncoming(RequestProtocol.class, this);
-        responder = connection.addOutgoing(ResponseProtocol.class);
-        workerLogEventListener = workerProcessContext.getServiceRegistry().get(WorkerLogEventListener.class);
         if (failure == null) {
             connection.useParameterSerializers(RequestSerializerRegistry.create(this.getClass().getClassLoader(), argumentSerializers));
         } else {
@@ -124,35 +162,34 @@ public class WorkerAction implements Action<WorkerProcessContext>, Serializable,
             // Ignore
             return;
         }
-        try {
-            CurrentBuildOperationRef.instance().set(request.getBuildOperation());
-            Object result;
+        CurrentBuildOperationRef.instance().with(request.getBuildOperation(), () -> {
             try {
-                // We want to use the responder as the logging protocol object here because log messages from the
-                // action will have the build operation associated.  By using the responder, we ensure that all
-                // messages arrive on the same incoming queue in the build process and the completed message will only
-                // arrive after all log messages have been processed.
-                result = workerLogEventListener.withWorkerLoggingProtocol(responder, new Callable<Object>() {
-                    @Override
-                    public Object call() throws Exception {
-                        return implementation.run(request.getArg());
+                Object result;
+                try {
+                    // We want to use the responder as the logging protocol object here because log messages from the
+                    // action will have the build operation associated.  By using the responder, we ensure that all
+                    // messages arrive on the same incoming queue in the build process and the completed message will only
+                    // arrive after all log messages have been processed.
+                    result = workerLogEventListener.withWorkerLoggingProtocol(responder, new Callable<Object>() {
+                        @Override
+                        public Object call() throws Exception {
+                            return implementation.run(request.getArg());
+                        }
+                    });
+                } catch (Throwable failure) {
+                    if (failure instanceof NoClassDefFoundError) {
+                        // Assume an infrastructure problem
+                        responder.infrastructureFailed(failure);
+                    } else {
+                        responder.failed(failure);
                     }
-                });
-            } catch (Throwable failure) {
-                if (failure instanceof NoClassDefFoundError) {
-                    // Assume an infrastructure problem
-                    responder.infrastructureFailed(failure);
-                } else {
-                    responder.failed(failure);
+                    return;
                 }
-                return;
+                responder.completed(result);
+            } catch (Throwable t) {
+                responder.infrastructureFailed(t);
             }
-            responder.completed(result);
-        } catch (Throwable t) {
-            responder.infrastructureFailed(t);
-        } finally {
-            CurrentBuildOperationRef.instance().clear();
-        }
+        });
     }
 
     @Override
