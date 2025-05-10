@@ -65,16 +65,16 @@ or better yet, upgrade to the latest version of the link:https://docs.gradle.com
 
 For Gradle 8.x, the minimum supported version was 3.0.
 
-==== Upgrade to Kotlin 2.1.21-RC
+==== Upgrade to Kotlin 2.1.21-RC2
 
-Gradle now embeds link:https://github.com/JetBrains/kotlin/releases/tag/v2.1.21-RC[Kotlin 2.1.21-RC], upgrading from the previously embedded version 2.0.21.
+Gradle now embeds Kotlin 2.1.21-RC2, upgrading from the previously embedded version 2.0.21.
 
 This upgrade includes several important changes:
 
 * Support for Kotlin language versions 1.4 and 1.5 has been removed.
 * Kotlin language version 1.7 is now deprecated.
 
-For full details and potential breaking changes, consult the link:https://github.com/JetBrains/kotlin/releases/tag/v2.1.21-RC[Kotlin release notes].
+For full details and potential breaking changes, consult the link:https://github.com/JetBrains/kotlin/releases/tag/v2.1.21-RC2[Kotlin release notes].
 
 ==== Kotlin DSL now uses the Kotlin language version 2.1
 
@@ -529,8 +529,32 @@ configurations {
 
 When test sources are present and no filters are applied, the `test` task will now fail with an error if it runs but doesn’t discover any tests.
 This is to help prevent misconfigurations where the tests are written for one test framework but the test task is mistakenly configured to use another test framework.
-
 If filters are applied, the outcome depends on the `failOnNoMatchingTests` property.
+
+This behavior can be disabled by setting the `failOnNoDiscoveredTests` property to `false` in the test task configuration:
+
+====
+[.multi-language-sample]
+=====
+.build.gradle.kts
+[source,kotlin]
+----
+tasks.withType<Test>().configureEach {
+    failOnNoDiscoveredTests = false
+}
+----
+=====
+[.multi-language-sample]
+=====
+.build.gradle
+[source,groovy]
+----
+tasks.withType(Test).configureEach {
+    failOnNoDiscoveredTests = false
+}
+----
+=====
+====
 
 [[validate_plugins_without_java_toolchain_90]]
 ==== `ValidatePlugins` task now requires Java Toolchains
@@ -564,6 +588,13 @@ plugins {
 
 TIP: The `jvm-toolchains` plugin is automatically applied by the <<java_library_plugin.adoc#java_library_plugin,Java Library Plugin>> and other JVM-related plugins.
 If you are already applying one of those, no further action is needed.
+
+==== The `model` and `component` tasks are no longer automatically added
+
+The `model` and `component` tasks report on the structure of legacy software model objects configured for the project.
+Previously, these tasks were automatically added to the project for every build.
+These tasks are now only added to a project when a rule-based plugin is applied (such as those provided by Gradle's support for building native software).
+
 
 [[changes_8.14]]
 == Upgrading from 8.13 and earlier
@@ -604,6 +635,16 @@ Since the previous version was 3.0.22, this includes changes for https://groovy-
 ==== Upgrade to JaCoCo 0.8.13
 
 JaCoCo has been updated to https://www.jacoco.org/jacoco/trunk/doc/changes.html[0.8.13].
+
+==== `JavaExec` now uses the toolchain from the `java` extension by default
+
+Previously, the `JavaExec` task used the same Java version as the Gradle process itself.
+Starting in Gradle 9.0, when the `java-base` plugin is applied, `JavaExec` will instead default to the Java toolchain configured in the `java` extension.
+You can override the toolchain explicitly in the `JavaExec` task configuration if needed.
+
+==== Upgrade to SLF4J 2.0.17
+
+SLF4J has been updated from 1.7.36 to https://www.slf4j.org/news.html#2.0.17[2.0.17].
 
 === Deprecations
 
