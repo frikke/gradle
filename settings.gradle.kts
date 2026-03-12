@@ -163,6 +163,8 @@ val core = platform("core") {
         subproject("file-watching")
         subproject("hashing")
         subproject("hashing-services")
+        subproject("normalization")
+        subproject("normalization-api")
         subproject("persistent-cache")
         subproject("worker-process-services")
         subproject("request-handler-worker")

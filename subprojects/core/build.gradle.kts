@@ -54,6 +54,7 @@ dependencies {
     api(projects.modelCore)
     api(projects.modelReflect)
     api(projects.native)
+    api(projects.normalization)
     api(projects.normalizationJava)
     api(projects.persistentCache)
     api(projects.problemsApi)
