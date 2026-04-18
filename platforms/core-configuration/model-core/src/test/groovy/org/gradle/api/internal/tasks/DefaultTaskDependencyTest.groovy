@@ -21,6 +21,7 @@ import org.gradle.api.internal.provider.ProviderInternal
 import org.gradle.api.internal.provider.ValueSupplier
 import org.gradle.api.tasks.TaskDependency
 import org.gradle.internal.typeconversion.UnsupportedNotationException
+import org.gradle.test.fixtures.ExpectDeprecation
 import org.gradle.util.Path
 import org.gradle.util.internal.TextUtil
 import spock.lang.Specification
@@ -79,6 +80,7 @@ class DefaultTaskDependencyTest extends Specification {
         dependency.getDependencies(task) == toSet(otherTask)
     }
 
+    @ExpectDeprecation("Accessing tasks provided to task dependency closures has been deprecated")
     def "can depend on a closure"() {
         when:
         dependency.add({ Task suppliedTask ->

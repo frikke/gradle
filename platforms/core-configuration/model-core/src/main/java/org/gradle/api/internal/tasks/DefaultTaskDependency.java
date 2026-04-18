@@ -25,10 +25,12 @@ import org.gradle.api.internal.provider.ProviderInternal;
 import org.gradle.api.internal.provider.ValueSupplier;
 import org.gradle.api.tasks.TaskDependency;
 import org.gradle.internal.Cast;
+import org.gradle.internal.deprecation.DeprecationLogger;
 import org.gradle.internal.typeconversion.UnsupportedNotationException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Proxy;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -112,7 +114,9 @@ public class DefaultTaskDependency extends AbstractTaskDependency {
                 ((TaskDependencyContainer) dependency).visitDependencies(context);
             } else if (dependency instanceof Closure) {
                 Closure closure = (Closure) dependency;
-                Object closureResult = closure.call(context.getTask());
+                Task task = context.getTask();
+                Object taskProxy = wrapTaskWithDeprecatingProxy(task);
+                Object closureResult = closure.call(taskProxy);
                 if (closureResult != null) {
                     queue.addFirst(closureResult);
                 }
@@ -167,6 +171,33 @@ public class DefaultTaskDependency extends AbstractTaskDependency {
                 throw new UnsupportedNotationException(dependency, String.format("Cannot convert %s to a task.", dependency), null, formats);
             }
         }
+    }
+
+    private static Object wrapTaskWithDeprecatingProxy(@Nullable Task task) {
+        if (task == null) {
+            return null;
+        }
+        return Proxy.newProxyInstance(
+            task.getClass().getClassLoader(),
+            task.getClass().getInterfaces(),
+            (proxy, method, args) -> {
+                if ("getMetaClass".equals(method.getName()) && method.getParameterCount() == 0) {
+                    // Return a MetaClass for the proxy's own class, not the delegate's.
+                    // Groovy's invokedynamic call site asks for the MetaClass to determine
+                    // the argument type. If we delegate to the real task, Groovy will fail
+                    // due to the type mismatch.
+                    return org.codehaus.groovy.runtime.InvokerHelper.getMetaClass(proxy.getClass());
+                }
+
+                DeprecationLogger.deprecateAction("Accessing tasks provided to task dependency closures")
+                    .withContext("Cannot call method '" + method.getName() + "' on task passed to task dependency closure.")
+                    .willBecomeAnErrorInGradle10()
+                    .withUpgradeGuideSection(9, "task_in_task_dependency_closure")
+                    .nagUser();
+
+                return method.invoke(task, args);
+            }
+        );
     }
 
     private static void addAllFirst(Deque<Object> queue, Object[] items) {

@@ -40,4 +40,54 @@ class TaskDependencyIntegrationTest extends AbstractIntegrationSpec {
         'removeAll([])' | _
         'retainAll([])' | _
     }
+
+    def "can use a closure as a task dependency"() {
+        buildFile << """
+            def bar = tasks.register("bar")
+            tasks.register("foo") {
+                dependsOn {
+                    bar
+                }
+            }
+        """
+
+        when:
+        succeeds("foo")
+
+        then:
+        executed(":bar")
+    }
+
+    def "accessing task provided to task dependency closure is deprecated"() {
+        buildFile << """
+            def bar = tasks.register("bar")
+            tasks.register("foo") {
+                dependsOn { task ->
+                    task.toString()
+                    bar
+                }
+            }
+        """
+
+        expect:
+        executer.expectDocumentedDeprecationWarning("Accessing tasks provided to task dependency closures has been deprecated. This will fail with an error in Gradle 10. Cannot call method 'toString' on task passed to task dependency closure. Consult the upgrading guide for further information: https://docs.gradle.org/current/userguide/upgrading_version_9.html#task_in_task_dependency_closure")
+        succeeds("foo")
+    }
+
+    def "accessing task provided to task dependency closure using it is deprecated"() {
+        buildFile << """
+            def bar = tasks.register("bar")
+            tasks.register("foo") {
+                dependsOn {
+                    it.toString()
+                    bar
+                }
+            }
+        """
+
+        expect:
+        executer.expectDocumentedDeprecationWarning("Accessing tasks provided to task dependency closures has been deprecated. This will fail with an error in Gradle 10. Cannot call method 'toString' on task passed to task dependency closure. Consult the upgrading guide for further information: https://docs.gradle.org/current/userguide/upgrading_version_9.html#task_in_task_dependency_closure")
+        succeeds("foo")
+    }
+
 }
