@@ -9,7 +9,9 @@ Rules and patterns for creating tested code snippets in the Gradle documentation
 - Code >5 lines in `.adoc` **must** use `include::sample[]` from `/snippets`. This applies primarily to **Groovy, Kotlin, and Java** source blocks.
 - Inline code in `.adoc` is only for genuinely untestable snippets of 5 lines or fewer.
 - Blocks using `.xml`, `.toml`, `.text`, `.bash`, `.json`, `.properties`, and similar non-DSL languages **typically do not need to be snippetized** — these are usually configuration samples, command output, directory trees, or illustrative text that cannot be meaningfully tested.
-- **`upgrading_*.adoc` files are exempt** from snippet requirements. Upgrading guides frequently show deprecated patterns, removed APIs, and "before" code that intentionally won't compile — snippetizing these is impractical and would produce failing tests.
+- **`upgrading_*.adoc` files are exempt** from snippet requirements. Upgrading guides frequently show deprecated patterns, removed APIs, and "before" code that intentionally won't compile — snippetizing them is impractical and would produce failing tests.
+- **All `dsl-apis/*.adoc` files are exempt** from snippet requirements (for example, `kotlin_dsl.adoc` and `public_apis.adoc`). These are language-specific files that explain the different DSLs — snippetizing them is impractical and would produce failing tests.
+- **`glossary*.adoc` file is exempt** from snippet requirements. This is a generic glossary — snippetizing this is impractical and would produce failing tests.
 - Every `.sample.conf` should have a `.out` file — a test without output verification only proves the build doesn't crash.
 - The `dir` path in `include::sample[]` is relative to `src/snippets/`.
 - Before renaming or restructuring a snippet, search for `@UsesSample` and `new Sample` references in integration tests.

@@ -1,0 +1,25 @@
+plugins {
+    id("java-library")
+}
+
+// tag::bundling-attribute[]
+configurations {
+    implementation {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+        }
+    }
+}
+// end::bundling-attribute[]
+
+// tag::target-attribute[]
+configurations {
+    compileClasspath {
+        attributes {
+            // tag::target-attribute-single[]
+            attribute(TargetConfiguration.TARGET_ATTRIBUTE, objects.named("debug"))
+            // end::target-attribute-single[]
+        }
+    }
+}
+// end::target-attribute[]

@@ -21,37 +21,25 @@
 For example, a library may have an `api` and an `implementation` variant.
 Here, the consumer wants an external `implementation` variant:
 
-[source,kotlin]
-----
-configurations {
-    implementation {
-        attributes {
-            attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
-        }
-    }
-}
-----
+====
+include::sample[dir="snippets/reference/dependency-management/controlling-dependency-resolution/variantAttributes-intro/kotlin",files="build.gradle.kts[tags=bundling-attribute]"]
+include::sample[dir="snippets/reference/dependency-management/controlling-dependency-resolution/variantAttributes-intro/groovy",files="build.gradle[tags=bundling-attribute]"]
+====
 
 For example, a build might have `debug` and `release` variants.
 This selects the `debug` variant based on the attribute.
 
-[source,kotlin]
-----
-configurations {
-    compileClasspath {
-        attributes {
-            attribute(TargetConfiguration.TARGET_ATTRIBUTE, objects.named("debug"))
-        }
-    }
-}
-----
+====
+include::sample[dir="snippets/reference/dependency-management/controlling-dependency-resolution/variantAttributes-intro/kotlin",files="build.gradle.kts[tags=target-attribute]"]
+include::sample[dir="snippets/reference/dependency-management/controlling-dependency-resolution/variantAttributes-intro/groovy",files="build.gradle[tags=target-attribute]"]
+====
 
 **Attributes** help Gradle match the right **variant** by comparing the requested attributes with what's available:
 
-[source,kotlin]
-----
-attribute(TargetConfiguration.TARGET_ATTRIBUTE, objects.named("debug"))
-----
+====
+include::sample[dir="snippets/reference/dependency-management/controlling-dependency-resolution/variantAttributes-intro/kotlin",files="build.gradle.kts[tags=target-attribute-single]"]
+include::sample[dir="snippets/reference/dependency-management/controlling-dependency-resolution/variantAttributes-intro/groovy",files="build.gradle[tags=target-attribute-single]"]
+====
 
 This sets the `TargetConfiguration.TARGET_ATTRIBUTE` to `"debug"`, meaning Gradle will attempt to resolve dependencies that have a "debug" variant, instead of other available variants (like "release").
 
