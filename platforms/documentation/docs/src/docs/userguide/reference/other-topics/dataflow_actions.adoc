@@ -27,6 +27,7 @@ This work piece has to process the task execution result, so it cannot be a task
 The Dataflow Actions API provides a way to schedule this type of work.
 A dataflow action is a parameterized isolated piece of work that becomes eligible for execution as soon as all input parameters become available.
 
+[[implementing_a_dataflow_action]]
 == Implementing a dataflow action
 
 The first step is to implement the action itself.
@@ -72,6 +73,7 @@ include::{snippetsPath}/reference/other-topics/playSound/groovy/plugin/src/main/
 <1> Parameters in the parameter type must be annotated. If a parameter is annotated with link:{javadocPath}/org/gradle/api/services/ServiceReference.html[`@ServiceReference`], then a suitable shared build service implementation is automatically assigned to the parameter when the action is created, according to the <<build_services.adoc#sec:service_references,usual rules>>.
 <2> All other parameters must be annotated with link:{javadocPath}/org/gradle/api/tasks/Input.html[`@Input`].
 
+[[using_lifecycle_event_providers]]
 == Using lifecycle event providers
 
 Besides the usual value providers, Gradle provides dedicated providers for build lifecycle events, like build completion.
@@ -92,6 +94,7 @@ flowProviders.buildWorkResult.map {
 
 WARNING: If you're not using a lifecycle event provider as an input to the dataflow action, then the exact timing when the action is executed is not defined and may change in the next version of Gradle.
 
+[[supplying_the_action_for_execution]]
 == Supplying the action for execution
 
 You should not create `FlowAction` objects manually.

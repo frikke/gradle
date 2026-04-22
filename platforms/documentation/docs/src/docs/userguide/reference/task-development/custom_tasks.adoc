@@ -428,6 +428,7 @@ $ ./gradlew -q help --task processUrl
 include::{snippetsPath}/tasks/commandLineOption-optionValues/tests-kotlin/helpTaskOptions.kotlin.out[]
 ----
 
+[[limitations]]
 === Limitations
 
 Support for declaring command line options currently comes with a few limitations.
@@ -439,6 +440,7 @@ There's no programmatic equivalent for defining options.
 - If you specify a task option name that conflicts with the name of a built-in Gradle option, use the `--` delimiter before calling your task to reference that option.
 For more information, see <<command_line_interface.adoc#sec:disambiguate_task_options_from_built_in_options, Disambiguate Task Options from Built-in Options>>.
 
+[[sec:verification_failures]]
 == Verification failures
 
 Normally, exceptions thrown during task execution result in a failure that immediately terminates a build.

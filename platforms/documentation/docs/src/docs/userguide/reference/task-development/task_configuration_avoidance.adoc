@@ -407,6 +407,7 @@ For a lazy alternative, use `withType().configureEach()`.
 
 |===
 
+[[sec:eager_apis_to_avoid]]
 == Eager APIs to avoid
 
 [cols="a,a", options="header"]

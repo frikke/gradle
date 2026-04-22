@@ -909,6 +909,7 @@ Since the task is of type `Copy`, a Gradle supported task type, it can be config
 
 The following examples show several ways to achieve the same configuration:
 
+[[using_the_named_method]]
 ==== 1. Using the `named()` method:
 
 Use `named()` to configure an existing task registered elsewhere:
@@ -918,6 +919,7 @@ include::sample[dir="snippets/reference/task-development/configureUsingVar/kotli
 include::sample[dir="snippets/reference/task-development/configureUsingVar/groovy",files="build.gradle[tags=configure]"]
 ====
 
+[[using_a_configuration_block]]
 ==== 2. Using a configuration block:
 
 Use a block to configure the task immediately upon registering it:
@@ -927,6 +929,7 @@ include::sample[dir="snippets/reference/task-development/defineAndConfigure/kotl
 include::sample[dir="snippets/reference/task-development/defineAndConfigure/groovy",files="build.gradle[tags=no-description]"]
 ====
 
+[[name_method_as_call]]
 ==== 3. Name method as call:
 
 A popular option that is only supported in Groovy is the shorthand notation:

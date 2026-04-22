@@ -30,6 +30,7 @@ There are a number of plugins available to publish your plugin.
 For now, we will use the core `maven-publish` plugin.
 The `maven-publish` plugin lets you publish artifacts (like JARs, libraries, or plugins) to a Maven repository.
 
+[[sec:apply_maven_publish_plugin]]
 == Apply the Maven Publish Plugin
 
 In your `plugin/build.gradle(.kts)`, apply the `maven-publish` plugin:
@@ -57,6 +58,7 @@ The `gradlePlugin {}` block is part of the `java-gradle-plugin` and declares a b
 It registers the full plugin *name* `org.example.filesizediff`, backed by a class called `FileDiffPlugin`.
 This is the class that implements `Plugin<Project>` and defines what happens when the plugin is applied.
 
+[[sec:configure_publishing_block]]
 == Configure the Publishing Block
 
 In your `plugin/build.gradle(.kts)` file, configure the plugin for publication by defining where to publish it.
@@ -73,6 +75,7 @@ publishing {
 }
 ----
 
+[[sec:publish_the_plugin]]
 == Publish the Plugin
 
 To publish, run:

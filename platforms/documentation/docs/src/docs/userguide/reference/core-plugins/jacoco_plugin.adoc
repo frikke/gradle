@@ -100,6 +100,7 @@ Tasks configured for running with the JaCoCo agent delete the destination file f
 This ensures that no stale coverage data is present in the execution data.
 ====
 
+[[sec:jacoco_task_extension_default_values]]
 === Default values of the JaCoCo Task extension
 
 ====

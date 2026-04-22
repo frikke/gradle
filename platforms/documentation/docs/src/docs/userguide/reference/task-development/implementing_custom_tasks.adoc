@@ -282,6 +282,7 @@ BUILD SUCCESSFUL in 1s
 
 You could define your own lifecycle task if needed.
 
+[[sec:task_implementation_by_extending_defaulttask]]
 == Task implementation by extending `DefaultTask`
 
 To address more individual needs, and if no existing plugins provide the build functionality you need, you can create your own task implementation.
@@ -622,6 +623,7 @@ BUILD SUCCESSFUL in 1s
 13 actionable tasks: 10 executed, 3 up-to-date
 ----
 
+[[sec:task_actions]]
 == Task actions
 
 A task action is the code that implements what a task is doing, as demonstrated in the previous section.
@@ -977,6 +979,7 @@ tasks.compileJava {
 =====
 ====
 
+[[sec:understanding_inputs_and_outputs]]
 == Understanding inputs and outputs
 
 Task inputs and outputs are important for:
@@ -985,6 +988,7 @@ Task inputs and outputs are important for:
 2. *Linking task inputs and outputs* - When outputs of one task are linked to the inputs of another, Gradle can automatically create task dependencies.
 3. *Using dependency configurations* - Task outputs can be used to tell Gradle that an artifact produced by a task should be added to a specific configuration.
 
+[[sec:declaring_inputs_and_outputs]]
 == Declaring inputs and outputs
 
 You can configure the inputs and outputs of a task in two main ways:
@@ -1064,6 +1068,7 @@ tasks.register('dynamicTask', ConfigurableTask) {
 ----
 =====
 
+[[sec:creating_lazy_inputs_and_outputs]]
 == Creating lazy inputs and outputs
 
 Gradle has the concept of lazy configuration, which allows task inputs and outputs to be referenced before they’re actually set.
@@ -1168,6 +1173,7 @@ Notes:
 
 WARNING: Avoid using `FileTree` when order matters — it has no guaranteed, stable file order and may cause unpredictable behavior.
 
+[[sec:annotating_inputs_and_outputs]]
 == Annotating inputs and outputs
 
 A good practice is to create a task class for your custom task.
@@ -1315,6 +1321,7 @@ abstract class AllTypes extends DefaultTask {
 =====
 ====
 
+[[sec:extending_existing_tasks]]
 == Extending existing tasks
 
 Sometimes writing tasks from scratch is not what's needed.

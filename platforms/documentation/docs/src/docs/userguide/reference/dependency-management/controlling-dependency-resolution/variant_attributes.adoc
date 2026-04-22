@@ -63,6 +63,7 @@ But it might be useful to understand the _standard attributes_ defined by Gradle
 
 As a plugin author, these attributes, and the way they are defined, can serve as a basis for <<#sec:declaring-attributes,building your own set of attributes>> in your ecosystem plugin.
 
+[[sec:ecosystem_independent_standard_attributes]]
 === Ecosystem-independent standard attributes
 
 [%header%autowidth,compact]
@@ -154,6 +155,7 @@ In addition to the ecosystem independent attributes defined above, the JVM ecosy
 The JVM ecosystem also contains a number of compatibility and disambiguation rules over the different attributes.
 The reader willing to know more can take a look at the code for `org.gradle.api.internal.artifacts.JavaEcosystemSupport`.
 
+[[sec:native_ecosystem_specific_attributes]]
 === Native ecosystem specific attributes
 
 In addition to the ecosystem independent attributes defined above, the native ecosystem adds the following attributes:

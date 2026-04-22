@@ -32,6 +32,7 @@ Learn the basics of structuring Gradle projects using subprojects and composite 
 1. You initialized your Java app in <<part1_gradle_init_project.adoc#part1_begin,part 1>>.
 2. You understand the Gradle Build Lifecycle from <<part2_build_lifecycle.adoc#part2_begin,part 2>>.
 
+[[ab_part3_step1]]
 == Step 1. About Multi-Project Builds
 
 Typically, builds contain multiple projects, such as shared libraries or separate applications that will be deployed in your ecosystem.
@@ -76,7 +77,9 @@ Our build currently consists of a root project called `authoring-tutorial`, whic
 <5> The optional settings file
 =====
 
+[[ab_part3_step2]]
 == Step 2. Add another Subproject to the Build
+
 Imagine that our project is growing and requires a custom library to function.
 
 Let's create this imaginary `lib`.
@@ -381,6 +384,7 @@ However, to build `app`, Gradle will also build `lib`.
 
 [[step_3_understand_composite_builds]]
 == Step 3. Understand Composite Builds
+
 A composite build is simply a build that includes other builds.
 
 Composite builds allow you to:
@@ -389,6 +393,7 @@ Composite builds allow you to:
 - Combine builds that are usually developed independently (such as a plugin and an application)
 - Decompose a large build into smaller, more isolated chunks
 
+[[ab_part3_step4]]
 == Step 4. Add build to the Build
 
 Let's add a plugin to our build.

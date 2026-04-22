@@ -51,6 +51,7 @@ _Depends on_: `__sourceSet__Classes`
 +
 Runs Checkstyle against the given source set's Java source files.
 
+[[sec:checkstyle_dependencies_added_to_other_tasks]]
 === Dependencies added to other tasks
 
 The Checkstyle plugin adds the following dependencies to tasks defined by the Java plugin.

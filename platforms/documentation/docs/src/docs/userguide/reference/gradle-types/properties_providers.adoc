@@ -75,6 +75,7 @@ Providers:
 * A `Provider` can be created from another `Provider` using link:{javadocPath}/org/gradle/api/provider/Provider.html#map-org.gradle.api.Transformer-[Provider.map(Transformer)].
 * Many other types extend `Provider` and can be used wherever a `Provider` is required.
 
+[[chaining_providers]]
 == Chaining Providers
 
 Chaining `Providers` preserves laziness and is essential to use when writing build logic.
@@ -263,6 +264,7 @@ include::sample[dir="snippets/reference/gradle-types/property/kotlin",files="bui
 include::sample[dir="snippets/reference/gradle-types/property/groovy",files="build.gradle[tags=named]"]
 ====
 
+[[using_java_bean_properties]]
 == Using Java Bean Properties
 
 Sometimes you may see properties implemented in the Java bean property style.

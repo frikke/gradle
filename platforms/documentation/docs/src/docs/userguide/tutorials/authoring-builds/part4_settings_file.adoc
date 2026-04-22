@@ -32,6 +32,7 @@ Learn the basics of authoring Gradle by developing the Settings File.
 2. You understand the Gradle Build Lifecycle from <<part2_build_lifecycle.adoc#part2_begin,part 2>>.
 3. You added a subproject and a separate Build in <<part3_multi_project_builds#part3_begin, part3>>.
 
+[[ab_part4_step1]]
 == Step 1. Gradle scripts
 
 Build scripts and setting files are code.
@@ -45,6 +46,7 @@ The methods that can be used within a Gradle script primarily include:
 - Blocks defined in the DSL - such as the `plugins{}` block from link:{kotlinDslPath}/gradle/org.gradle.kotlin.dsl/-kotlin-settings-script/index.html[KotlinSettingsScript]
 - Extensions defined by Plugins - such as `implementation()` and `api()` provided by the `java` plugin when applied
 
+[[ab_part4_step2]]
 == Step 2. The `Settings` object
 
 The settings file is the entry point of every Gradle build.
@@ -76,6 +78,7 @@ reportsDir = findProject('/myInternalProject')     // Delegates to Settings.find
 ----
 =====
 
+[[ab_part4_step3]]
 == Step 3. The Settings file
 
 Let's break down the settings file in our project root directory:

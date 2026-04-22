@@ -316,6 +316,7 @@ You can learn more in the <<implementing_gradle_plugins_binary.adoc#sec:differen
 There are two ways that services can be provided to an object.
 
 === Constructor injection
+
 A service can be injected into the constructor of the class. The constructor must be public and annotated with the `javax.inject.Inject` annotation.
 
 Gradle uses the declared type of each constructor parameter to determine the services that the object requires.
@@ -331,6 +332,7 @@ include::{snippetsPath}/plugins/constructorServiceInjection/groovy/buildSrc/src/
 
 [[property_injection]]
 === Property injection
+
 A service can be injected by adding a property getter method annotated with the `javax.inject.Inject` annotation to the class.
 
 Gradle defers the creation of the service until the getter method is called. This can be more performant than constructor injection.
