@@ -1,0 +1,3 @@
+> Task :some-logic:compileJava
+> Task :app:compileJava
+> Task :app:build

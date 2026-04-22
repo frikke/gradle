@@ -63,42 +63,8 @@ Let's imagine that the `app` subproject depends on the subproject called `some-l
 We add this dependency in the `app` build script:
 
 ====
-[.multi-language-sample]
-=====
-.app/build.gradle.kts
-[source,kotlin]
-----
-plugins {
-    id("application")                       // app is now a java application
-}
-
-application {
-    mainClass.set("hello.HelloWorld")       // main class name required by the application plugin
-}
-
-dependencies {
-    implementation(project(":some-logic"))  // dependency on some-logic
-}
-----
-=====
-[.multi-language-sample]
-=====
-.app/build.gradle
-[source,groovy]
-----
-plugins {
-    id('application')                       // app is now a java application
-}
-
-application {
-    mainClass = 'hello.HelloWorld'          // main class name required by the application plugin
-}
-
-dependencies {
-    implementation(project(':some-logic'))  // dependency on some-logic
-}
-----
-=====
+include::sample[dir="snippets/reference/task-development/taskDependencies/kotlin",files="app/build.gradle.kts[tags=app-build-script]"]
+include::sample[dir="snippets/reference/task-development/taskDependencies/groovy",files="app/build.gradle[tags=app-build-script]"]
 ====
 
 If we run `:app:build` again, we see the Java code of `some-logic` is also compiled by Gradle automatically:
