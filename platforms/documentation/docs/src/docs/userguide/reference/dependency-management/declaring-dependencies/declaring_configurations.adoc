@@ -299,23 +299,10 @@ To benefit from this, make sure your build logic doesn’t force configurations 
 
 For example:
 
-.build.gradle.kts
-[source,kotlin]
-----
-// Instead of
-configurations.all {}                           // Eagerly realizes all configurations
-
-// Use
-configurations.configureEach {}                 // Only called for realized configurations
-
-// Instead of
-configurations.getByName("name").doSomething()  // Eagerly realizes the "name" configuration
-
-// Use
-configurations.named("name").configure {
-    doSomething()                               // Only called if "name" configuration is realized
-}
-----
+====
+include::sample[dir="snippets/reference/dependency-management/declaring-dependencies/declaringConfigurations-lazyConfig/kotlin",files="build.gradle.kts[tags=lazy-config]"]
+include::sample[dir="snippets/reference/dependency-management/declaring-dependencies/declaringConfigurations-lazyConfig/groovy",files="build.gradle[tags=lazy-config]"]
+====
 
 `all {}` iterates every configuration eagerly at configuration time, while `configureEach {}` registers the action but delays running it until the configuration is actually realized.
 
