@@ -285,7 +285,6 @@ For the full list of standard Docbook tags, see the [Docbook reference](http://d
 
 **Source:** `gradle/*` — javadoc can be found in many java files in the Gradle codebase
 
-
 ```bash
 ./gradlew :docs:javadocAll
 ```
