@@ -458,12 +458,7 @@ When generating a Gradle build from an existing Maven project, dependency exclus
 Because Maven and Gradle handle dependency resolution and exclusions differently, a direct translation may not always be perfectly equivalent.
 To ensure build integrity, generated exclusions include a `TODO` comment for manual verification:
 
-[source,kotlin]
-----
-dependencies {
-    implementation("some.group:some-artifact:1.0") {
-        // TODO: This exclude was sourced from a POM exclusion and is NOT exactly equivalent
-        exclude(group = "excluded.group", module = "excluded-artifact")
-    }
-}
-----
+====
+include::sample[dir="snippets/reference/core-plugins/buildInitPlugin-pomExclusion/kotlin",files="build.gradle.kts[tags=pom-exclusion]"]
+include::sample[dir="snippets/reference/core-plugins/buildInitPlugin-pomExclusion/groovy",files="build.gradle[tags=pom-exclusion]"]
+====
