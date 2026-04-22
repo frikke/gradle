@@ -42,36 +42,10 @@ Let's tie our custom `LicenseTask` to our plugin.
 
 Update the `LicensePlugin` with the code for the `Plugin` below (don't change anything else in the file):
 
-[.multi-language-sample]
-=====
-.gradle/license-plugin/plugin/src/main/kotlin/license/LicensePlugin.kt
-[source,kotlin]
-----
-class LicensePlugin: Plugin<Project> {
-    override fun apply(project: Project) {
-        project.tasks.register("license", LicenseTask::class.java) { task ->
-            task.description = "add a license header to source code"   // Add description
-            task.group = "from license plugin"                         // Add group
-        }
-    }
-}
-----
-=====
-[.multi-language-sample]
-=====
-.gradle/license-plugin/plugin/src/main/kotlin/license/LicensePlugin.groovy
-[source, groovy]
-----
-class LicensePlugin implements Plugin<Project> {
-    void apply(Project project) {
-        project.tasks.register("license", LicenseTask) { task ->
-            task.setDescription("add a license header to source code")  // Add description
-            task.setGroup("from license plugin")                        // Add group
-        }
-    }
-}
-----
-=====
+====
+include::sample[dir="snippets/tutorials/authoring-builds/writingPlugins-licensePlugin/kotlin",files="build.gradle.kts[tags=license-plugin]"]
+include::sample[dir="snippets/tutorials/authoring-builds/writingPlugins-licensePlugin/groovy",files="build.gradle[tags=license-plugin]"]
+====
 
 [[ab_part7_step2]]
 == Step 2. Add a license.txt file
