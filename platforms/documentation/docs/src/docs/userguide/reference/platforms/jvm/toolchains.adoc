@@ -183,36 +183,8 @@ In some cases, you may want to:
 For example, to compile with Java 17 but produce Java 11 bytecode:
 
 ====
-[.multi-language-sample]
-=====
-[source,kotlin]
-----
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    options.release = 11
-}
-----
-=====
-[.multi-language-sample]
-=====
-[source,groovy]
-----
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.release = 11
-}
-----
-=====
+include::sample[dir="snippets/reference/platforms/jvm/toolchains-crossCompile/kotlin",files="build.gradle.kts[tags=cross-compile]"]
+include::sample[dir="snippets/reference/platforms/jvm/toolchains-crossCompile/groovy",files="build.gradle[tags=cross-compile]"]
 ====
 
 [[sec:comparison_table_for_setting_project_toolchains]]
