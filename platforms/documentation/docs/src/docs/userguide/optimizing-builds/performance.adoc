@@ -864,30 +864,8 @@ If you occasionally need reports without modifying the build file, you can make 
 This example disables reports unless the `createReports` property is present:
 
 ====
-[.multi-language-sample]
-=====
-[source,kotlin]
-----
-tasks.withType<Test>().configureEach {
-    if (!project.hasProperty("createReports")) {
-        reports.html.required = false
-        reports.junitXml.required = false
-    }
-}
-----
-=====
-[.multi-language-sample]
-=====
-[source,groovy]
-----
-tasks.withType(Test).configureEach {
-    if (!project.hasProperty("createReports")) {
-        reports.html.required = false
-        reports.junitXml.required = false
-    }
-}
-----
-=====
+include::sample[dir="snippets/optimizing-builds/performance-conditionalReports/kotlin",files="build.gradle.kts[tags=conditional-reports]"]
+include::sample[dir="snippets/optimizing-builds/performance-conditionalReports/groovy",files="build.gradle[tags=conditional-reports]"]
 ====
 
 To generate reports, pass the property via the command line:
