@@ -64,16 +64,10 @@ This is the class that implements `Plugin<Project>` and defines what happens whe
 In your `plugin/build.gradle(.kts)` file, configure the plugin for publication by defining where to publish it.
 Inside the `publishing {}` block, you specify the repository to publish to:
 
-[source,kotlin]
-----
-publishing {
-    repositories {
-        maven {
-            url = uri("${layout.projectDirectory}/publish")
-        }
-    }
-}
-----
+====
+include::sample[dir="snippets/fundamentals/developing-plugins/publishingBinaryPlugin-publishingBlock/kotlin",files="build.gradle.kts[tags=publishing-block]"]
+include::sample[dir="snippets/fundamentals/developing-plugins/publishingBinaryPlugin-publishingBlock/groovy",files="build.gradle[tags=publishing-block]"]
+====
 
 [[sec:publish_the_plugin]]
 == Publish the Plugin
