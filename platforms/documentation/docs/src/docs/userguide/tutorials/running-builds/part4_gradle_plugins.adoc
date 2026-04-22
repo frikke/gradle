@@ -205,7 +205,7 @@ They are the **main way to organize and reuse build logic**.
 
 Gradle supports three main plugin types:
 
-1. **Core plugins** – Built into Gradle (e.g., `java`, `application`):
+. **Core plugins** – Built into Gradle (e.g., `java`, `application`):
 +
 [.multi-language-sample]
 =====
@@ -228,7 +228,7 @@ plugins {
 ----
 =====
 
-2. **Community plugins** – Published by others to the link:https://plugins.gradle.org/[Gradle Plugin Portal]:
+. **Community plugins** – Published by others to the link:https://plugins.gradle.org/[Gradle Plugin Portal]:
 +
 [.multi-language-sample]
 =====
@@ -251,7 +251,7 @@ plugins {
 ----
 =====
 
-3. **Custom plugins** – Created by you or your team for internal use. These live in `buildSrc/` or a dedicated subproject.
+. **Custom plugins** – Created by you or your team for internal use. These live in `buildSrc/` or a dedicated subproject.
 +
 **Convention plugins** are custom plugins used to share common build logic across subprojects (like code style, compiler options, or testing setup):
 +

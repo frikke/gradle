@@ -38,7 +38,7 @@ As such, we distinguish between three different sources for Gradle plugins:
 2. *Community Plugins* - plugins that come from the link:https://plugins.gradle.org/[Gradle Plugin Portal] or a public repository.
 3. *Local or Custom Plugins* - plugins that you develop yourself.
 
-[[core_plugins]]
+[[sec:core_plugins]]
 === Core Plugins
 
 The term *core plugin* refers to a plugin that is part of the Gradle distribution such as the <<java_library_plugin.adoc#java_library_plugin,Java Library Plugin>>.
@@ -176,7 +176,7 @@ $ ./gradlew -q hello
 ----
 [source,text]
 ----
-include::{snippetsPath}/plugins/greetingPlugin/tests/greeting.out[]
+include::{snippetsPath}/reference/plugin-development/greetingPlugin/tests/greeting.out[]
 ----
 
 [[sec:convention_plugins]]

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-[[build_lifecycle]]
+[[build_lifecycle_reference]]
 = Build Lifecycle
 
 The build lifecycle is the sequence of phases Gradle executes to turn your build scripts into completed work, from initializing the build environment to configuring projects and finally executing tasks.
@@ -256,7 +256,7 @@ This diagram shows two example task graphs, one abstract and the other concrete,
 
 image::task-dag-examples.png[]
 
-[[lifecycle_api]]
+[[hooks_into_build_lifecycle]]
 == Hooks into the Gradle Build Lifecycle
 
 Gradle exposes several APIs that let you listen to or react to key points in the build lifecycle.

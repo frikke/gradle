@@ -154,7 +154,7 @@ $ gradle -q printProperties
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/extraProperties/tests/extraProperties.out[]
+include::{snippetsPath}/fundamentals/authoring-builds/extraProperties/tests/extraProperties.out[]
 ----
 
 Gradle uses special syntax for defining extra properties to ensure fail-fast behavior.
@@ -303,7 +303,7 @@ $ gradle -q check
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/projectApi/tests/projectApi.out[]
+include::{snippetsPath}/fundamentals/authoring-builds/projectApi/tests/projectApi.out[]
 ----
 
 This works because of how Gradle evaluates build scripts:

@@ -272,7 +272,7 @@ include::sample[dir="snippets/best-practices/avoidComputationInConfigurationPhas
 === References
 
 - <<lazy_configuration.adoc#lazy_configuration,lazy configuration>>
-- <<build_lifecycle.adoc#build_lifecycle,Build Lifecycle>>
+- <<build_lifecycle.adoc#build_lifecycle_reference,Build Lifecycle>>
 
 === Tags
 

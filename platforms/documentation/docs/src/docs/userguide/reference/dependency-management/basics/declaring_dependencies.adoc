@@ -74,7 +74,7 @@ include::sample[dir="snippets/reference/dependency-management/basics/catalogs-se
 include::sample[dir="snippets/reference/dependency-management/basics/catalogs-settings/groovy",files="build.gradle[tags=use_catalog_equiv]"]
 ====
 
-[[sec:project_dependencies]]
+[[sec:project_dependencies_declaring]]
 === 2. Project dependencies
 
 Project dependencies allow you to declare dependencies on other projects within the same build.

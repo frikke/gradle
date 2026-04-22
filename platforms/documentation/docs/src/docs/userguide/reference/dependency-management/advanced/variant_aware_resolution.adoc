@@ -30,7 +30,7 @@ Each *variant* may have its own *artifacts* and *dependencies*.
 Gradle uses *attributes* to determine which *variant* to choose.
 These *attributes* add context to each *variant*, describing when they should be used.
 
-[[sec:components]]
+[[sec:components_variants]]
 == Components
 
 Let's review our description of <<graph_resolution#sec:components,components>> in the previous section.

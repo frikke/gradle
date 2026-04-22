@@ -37,8 +37,8 @@ NOTE: The <<base_plugin.adoc#base_plugin,Gradle `base` plugin>> defines several 
 
 We group the `build`, `check` task, and the `run` task by adding the following lines to the `app` build script:
 
-include::sample[dir="snippets/reference/task-development/organizingTasks-appGrouping",files="app/build.gradle.kts[tags=app-grouping]"]
-include::sample[dir="snippets/reference/task-development/organizingTasks-appGrouping",files="app/build.gradle[tags=app-grouping]"]
+include::sample[dir="snippets/reference/task-development/organizingTasks-appGrouping/kotlin",files="app/build.gradle.kts[tags=app-grouping]"]
+include::sample[dir="snippets/reference/task-development/organizingTasks-appGrouping/groovy",files="app/build.gradle[tags=app-grouping]"]
 
 If we now look at the `app:tasks` list, we can see the three tasks are available:
 
@@ -206,8 +206,8 @@ We'll establish two groups for our global lifecycle tasks: one for tasks relevan
 
 Once again, we narrowed down the tasks listed to our specific groups:
 
-include::sample[dir="snippets/reference/task-development/organizingTasks-globalGroups",files="build.gradle.kts[tags=global-groups]"]
-include::sample[dir="snippets/reference/task-development/organizingTasks-globalGroups",files="build.gradle[tags=global-groups]"]
+include::sample[dir="snippets/reference/task-development/organizingTasks-globalGroups/kotlin",files="build.gradle.kts[tags=global-groups]"]
+include::sample[dir="snippets/reference/task-development/organizingTasks-globalGroups/groovy",files="build.gradle[tags=global-groups]"]
 
 You could hide the CI tasks if you wanted to by updating `displayGroups`.
 
@@ -233,8 +233,8 @@ NOTE: In this file, we don't apply a plugin!
 Let's add a `qualityCheckApp` task to execute all code quality checks in the `app` subproject.
 Similarly, for CI purposes, we implement a `checkAll` task that runs all tests:
 
-include::sample[dir="snippets/reference/task-development/organizingTasks-globalLifecycle",files="build.gradle.kts[tags=global-lifecycle]"]
-include::sample[dir="snippets/reference/task-development/organizingTasks-globalLifecycle",files="build.gradle[tags=global-lifecycle]"]
+include::sample[dir="snippets/reference/task-development/organizingTasks-globalLifecycle/kotlin",files="build.gradle.kts[tags=global-lifecycle]"]
+include::sample[dir="snippets/reference/task-development/organizingTasks-globalLifecycle/groovy",files="build.gradle[tags=global-lifecycle]"]
 
 So we can now ask Gradle to show us the tasks for the root project and, by default, it will only show us the `qualityCheckAll` task (and optionally the `checkAll` task depending on the value of `displayGroups`).
 

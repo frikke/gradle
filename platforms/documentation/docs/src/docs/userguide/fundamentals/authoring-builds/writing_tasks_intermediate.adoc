@@ -62,7 +62,7 @@ $ ./gradlew hello
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/hello/tests/hello.out[]
+include::{snippetsPath}/fundamentals/authoring-builds/hello/tests/hello.out[]
 ----
 
 When you *register* (i.e. create) a *task* in your build script, you can:
@@ -268,7 +268,7 @@ $ gradle -q intro
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/intro/tests/intro.out[]
+include::{snippetsPath}/fundamentals/authoring-builds/intro/tests/intro.out[]
 ----
 
 ++++
@@ -293,7 +293,7 @@ $ ./gradlew -q taskX
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/lazyDependsOn/tests/lazyDependsOn.out[]
+include::{snippetsPath}/fundamentals/authoring-builds/lazyDependsOn/tests/lazyDependsOn.out[]
 ----
 
 The `hello` *task* from the previous example is updated to include a dependency:
@@ -343,7 +343,7 @@ $ ./gradlew -q hello
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/helloEnhanced/tests/helloEnhanced.out[]
+include::{snippetsPath}/fundamentals/authoring-builds/helloEnhanced/tests/helloEnhanced.out[]
 ----
 
 TIP: The calls `doFirst` and `doLast` can be executed multiple times.

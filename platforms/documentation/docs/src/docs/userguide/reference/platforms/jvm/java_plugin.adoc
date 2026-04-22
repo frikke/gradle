@@ -419,7 +419,7 @@ _Note that using a <<toolchains.adoc#toolchains, toolchain>> is preferred to usi
 Java version to generate classes for. Default value: `__sourceCompatibility__`. +
 _Note that using a <<toolchains.adoc#toolchains, toolchain>> is preferred to using a compatibility setting for most cases._
 
-[[sec:java_packaging]]
+[[sec:java_packaging_plugin]]
 === Packaging
 
 `withJavadocJar()`::

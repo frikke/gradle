@@ -49,7 +49,7 @@ For developing C++ projects, Gradle comes with a <<xcode_plugin.adoc#xcode_plugi
 CLion::
 JetBrains supports building https://blog.jetbrains.com/clion/2018/05/clion-starts-2018-2-eap-sanitizers-gradle-db-performance/[C++ projects with Gradle].
 
-[[sec:continuous_integration]]
+[[sec:continuous_integration_third_party]]
 == Continuous integration
 
 We have link:https://cookbook.gradle.org/ci/[dedicated guides] showing you how to integrate a Gradle project with several CI platforms.

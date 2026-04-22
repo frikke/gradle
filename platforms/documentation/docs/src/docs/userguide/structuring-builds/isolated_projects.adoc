@@ -221,7 +221,7 @@ However, Isolated Projects will catch violations as you change your build logic,
 
 Much of the performance benefit of Isolated Projects comes from running project configuration in parallel.
 The degree of parallelism is controlled by the <<build_environment.adoc#sec:property:workers_max,`org.gradle.workers.max` Gradle property>>,
-which sets the maximum number of parallel units of work across all <<build_lifecycle.adoc#build_lifecycle,build phases>>,
+which sets the maximum number of parallel units of work across all <<build_lifecycle.adoc#build_lifecycle_reference,build phases>>,
 including configuration.
 
 The default value is the number of CPU cores on your machine, which is usually a good choice.

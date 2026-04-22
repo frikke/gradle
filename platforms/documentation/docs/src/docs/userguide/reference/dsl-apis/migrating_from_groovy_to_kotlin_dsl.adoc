@@ -167,7 +167,7 @@ On top of that, apply the following conventions for better IDE support:
 * Name <<init_scripts.adoc#init_scripts,init scripts>> according to the pattern `*.init.gradle.kts`.
 
 
-[[applying_plugins]]
+[[applying_plugins_kotlin_dsl]]
 == Applying plugins
 
 Just like with the Groovy DSL, there are two ways to apply Gradle plugins:

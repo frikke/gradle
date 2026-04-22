@@ -91,7 +91,7 @@ Here is an example of a plugin that registers the previous service when the task
 [source,java]
 .DownloadPlugin.java
 ----
-include::{snippetsPath}/plugins/buildServiceUsingServiceReference/groovy/buildSrc/src/main/java/DownloadPlugin.java[]
+include::{snippetsPath}/reference/plugin-development/buildServiceUsingServiceReference/groovy/buildSrc/src/main/java/DownloadPlugin.java[]
 ----
 
 As you can see, there is no need to assign the build service provider returned by `registerIfAbsent()` to the task, the service is automatically injected into all matching properties that were annotated with `@ServiceReference`.
@@ -101,7 +101,7 @@ Here is an example of a task that consumes the previous service via a property a
 [source,java]
 .Download.java
 ----
-include::{snippetsPath}/plugins/buildServiceUsingServiceReference/groovy/buildSrc/src/main/java/Download.java[]
+include::{snippetsPath}/reference/plugin-development/buildServiceUsingServiceReference/groovy/buildSrc/src/main/java/Download.java[]
 ----
 
 Automatic matching of registered build services with service reference properties is done by type and (optionally) by name (for properties that declare the name of the service they expect).
@@ -178,7 +178,7 @@ To do this, create and register a build service that implements link:{javadocPat
 [source,java]
 .TaskEventsService.java
 ----
-include::{snippetsPath}/plugins/buildServiceListener/groovy/buildSrc/src/main/java/TaskEventsService.java[tags=build-service]
+include::{snippetsPath}/reference/plugin-development/buildServiceListener/groovy/buildSrc/src/main/java/TaskEventsService.java[tags=build-service]
 ----
 <1> Implement the `OperationCompletionListener` interface and the `BuildService` interface.
 <2> Check if the finish event is a link:{javadocPath}/org/gradle/tooling/events/task/TaskFinishEvent.html[TaskFinishEvent].
@@ -188,7 +188,7 @@ Then, in the plugin, you can use the methods on the link:{javadocPath}/org/gradl
 [source,java]
 .TaskEventsPlugin.java
 ----
-include::{snippetsPath}/plugins/buildServiceListener/groovy/buildSrc/src/main/java/TaskEventsPlugin.java[]
+include::{snippetsPath}/reference/plugin-development/buildServiceListener/groovy/buildSrc/src/main/java/TaskEventsPlugin.java[]
 ----
 <1> Use <<service_injection.adoc#service_injection,service injection>> to obtain an instance of the `BuildEventsListenerRegistry`.
 <2> Register the build service as usual.

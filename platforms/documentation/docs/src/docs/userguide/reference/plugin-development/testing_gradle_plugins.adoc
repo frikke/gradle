@@ -324,7 +324,7 @@ Please see the <<test_kit.adoc#test_kit,TestKit documentation>> to get more fami
 include::{snippetsPath}/reference/plugin-development/testingPlugins/common/url-verifier-plugin/src/functionalTest/groovy/org/myorg/UrlVerifierPluginFunctionalTest.groovy[]
 ----
 
-[[ide_integration]]
+[[ide_integration_testing]]
 ==== IDE integration
 
 TestKit determines the plugin classpath by running a specific Gradle task.

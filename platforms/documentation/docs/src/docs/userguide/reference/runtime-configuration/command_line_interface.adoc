@@ -106,7 +106,7 @@ To pass an option to a task, prefix the option name with `--` after the task nam
 $ gradle :exampleTask --exampleOption=exampleValue
 ----
 
-[[disambiguate_task_options_from_built_in_options]]
+[[disambiguate_conflicting_task_options]]
 ==== Disambiguate task options from built-in options
 
 Gradle does not prevent tasks from registering options that conflict with Gradle's built-in options, like `--profile` or `--help`.
@@ -223,7 +223,7 @@ $ gradle dist --exclude-task test
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/excludeTasks/tests/excludeTask.out[]
+include::{snippetsPath}/reference/runtime-configuration/excludeTasks/tests/excludeTask.out[]
 ----
 
 image::commandLineTutorialTasks.png[]
@@ -287,7 +287,7 @@ $ ./gradlew mAL:cT
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/nameMatching/tests/nameMatching.out[]
+include::{snippetsPath}/reference/runtime-configuration/nameMatching/tests/nameMatching.out[]
 ----
 
 Abbreviations can also be used with the `-x` command-line option.
@@ -448,7 +448,7 @@ $ ./gradlew -q help --task libs
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/projectReports/tests/taskHelp.out[]
+include::{snippetsPath}/reference/runtime-configuration/projectReports/tests/taskHelp.out[]
 ----
 
 This information includes the full task path, the task type, possible <<sec:task_options,task-specific command line options>>, and the description of the given task.
@@ -545,7 +545,7 @@ $ ./gradlew -q api:properties
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/projectReports/tests/propertyListReport.out[]
+include::{snippetsPath}/reference/runtime-configuration/projectReports/tests/propertyListReport.out[]
 ----
 
 You can also query a single property with the optional `--property` argument:
@@ -556,7 +556,7 @@ $ ./gradlew -q api:properties --property allprojects
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/projectReports/tests/propertyReport.out[]
+include::{snippetsPath}/reference/runtime-configuration/projectReports/tests/propertyReport.out[]
 ----
 
 [[sec:command_line_completion]]

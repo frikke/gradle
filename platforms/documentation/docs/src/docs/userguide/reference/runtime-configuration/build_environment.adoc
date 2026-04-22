@@ -229,7 +229,7 @@ $ ./gradlew performRelease -PisCI=true --quiet
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/configureTaskUsingProjectProperty/tests/configureTaskUsingProjectProperty.out[]
+include::{snippetsPath}/reference/runtime-configuration/configureTaskUsingProjectProperty/tests/configureTaskUsingProjectProperty.out[]
 ----
 
 Note that running `./gradlew performRelease` yields the same results as long as your `gradle.properties` file includes `isCI=true`:
@@ -246,7 +246,7 @@ $ ./gradlew performRelease --quiet
 ----
 [source,text]
 ----
-include::{snippetsPath}/tutorial/configureTaskUsingProjectProperty/tests/configureTaskUsingProjectProperty.out[]
+include::{snippetsPath}/reference/runtime-configuration/configureTaskUsingProjectProperty/tests/configureTaskUsingProjectProperty.out[]
 ----
 
 [[sec:gradle_command_line_flags]]

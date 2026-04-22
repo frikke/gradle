@@ -435,7 +435,7 @@ For instance, this wil *not* be allowed:
 > gradlew init tasks
 ----
 
-[[task_project]]
+[[task_project_v8]]
 ==== Calling `Task.getProject()` from a task action
 
 Calling link:{javadocPath}/org/gradle/api/Task.html#getProject--[Task.getProject()] from a task action at execution time is now deprecated and will be made an error in Gradle 10.
