@@ -786,20 +786,10 @@ It's important to note that `renameTo()` has some limitations and platform-speci
 In this example, the `moveFile` task uses the `Copy` task type to specify the source and destination directories.
 Inside the `doLast` closure, it uses `File.renameTo()` to move the file from the source directory to the destination directory:
 
-[source,groovy]
-----
-task moveFile {
-    doLast {
-        def sourceFile = file('source.txt')
-        def destFile = file('destination/new_name.txt')
-
-        if (sourceFile.renameTo(destFile)) {
-            println "File moved successfully."
-        }
-    }
-}
-
-----
+====
+include::sample[dir="snippets/reference/gradle-types/workingWithFiles-fileOps/kotlin",files="build.gradle.kts[tags=move-rename]"]
+include::sample[dir="snippets/reference/gradle-types/workingWithFiles-fileOps/groovy",files="build.gradle[tags=move-rename]"]
+====
 
 [[moving_files_using_copy_task]]
 === Using the `Copy` task
@@ -807,16 +797,10 @@ task moveFile {
 In this example, the `moveFile` task copies the file `source.txt` to the destination directory and renames it to `new_name.txt` in the process.
 This achieves a similar effect to moving a file.
 
-[source,groovy]
-----
-task moveFile(type: Copy) {
-    from 'source.txt'
-    into 'destination'
-    rename { fileName ->
-        'new_name.txt'
-    }
-}
-----
+====
+include::sample[dir="snippets/reference/gradle-types/workingWithFiles-fileOps/kotlin",files="build.gradle.kts[tags=move-copy]"]
+include::sample[dir="snippets/reference/gradle-types/workingWithFiles-fileOps/groovy",files="build.gradle[tags=move-copy]"]
+====
 
 [[sec:deleting_files_example]]
 == Deleting files and directories
@@ -1201,24 +1185,10 @@ It will do nothing if the directory already exists.
 You can create directories in Gradle using the `mkdir` method, which is available in the link:{javadocPath}/org/gradle/api/Project.html#mkdir-java.lang.Object-[`Project` object].
 This method takes a `File` object or a `String` representing the path of the directory to be created:
 
-[source,groovy]
-----
-tasks.register('createDirs') {
-    doLast {
-        mkdir 'src/main/resources'
-        mkdir file('build/generated')
-
-        // Create multiple dirs
-        mkdir files(['src/main/resources', 'src/test/resources'])
-
-        // Check dir existence
-        def dir = file('src/main/resources')
-        if (!dir.exists()) {
-            mkdir dir
-        }
-    }
-}
-----
+====
+include::sample[dir="snippets/reference/gradle-types/workingWithFiles-fileOps/kotlin",files="build.gradle.kts[tags=create-dirs]"]
+include::sample[dir="snippets/reference/gradle-types/workingWithFiles-fileOps/groovy",files="build.gradle[tags=create-dirs]"]
+====
 
 [[sec:install_executable]]
 == Installing executables
