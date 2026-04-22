@@ -555,54 +555,10 @@ Actions registered as `GradleLifecycle` callbacks are *link:{javadocPath}/org/gr
 The example below shows how this API could be used in a settings script or <<plugins.adoc#project_vs_settings_vs_init_plugins, settings plugins>> to apply configuration to all projects,
 while avoiding <<sharing_build_logic_between_subprojects.adoc#sec:convention_plugins_vs_cross_configuration, cross-project configuration>>:
 
-[.multi-language-sample]
-=====
-.settings.gradle.kts
-[source,kotlin]
-----
-include("sub1")
-include("sub2")
-
-val sharedGroup = "org.example.app"
-val sharedVersion: String =
-    layout.settingsDirectory.file("version.txt").asFile.readText()
-
-gradle.lifecycle.beforeProject {
-    apply(plugin = "base")
-
-    repositories {
-        mavenCentral()
-    }
-
-    group = sharedGroup
-    version = sharedVersion
-}
-----
-=====
-[.multi-language-sample]
-=====
-.settings.gradle
-[source,groovy]
-----
-include('sub1')
-include('sub2')
-
-def sharedGroup = 'org.example.app'
-def sharedVersion =
-    layout.settingsDirectory.file('version.txt').asFile.text
-
-gradle.lifecycle.beforeProject {
-    apply plugin: 'base'
-
-    repositories {
-        mavenCentral()
-    }
-
-    group = sharedGroup
-    version = sharedVersion
-}
-----
-=====
+====
+include::sample[dir="snippets/structuring-builds/isolatedProjects-lifecycleApi/kotlin",files="settings.gradle.kts[tags=lifecycle-before-project]"]
+include::sample[dir="snippets/structuring-builds/isolatedProjects-lifecycleApi/groovy",files="settings.gradle[tags=lifecycle-before-project]"]
+====
 
 [[sec:ip_isolated_project_api]]
 ==== Use `IsolatedProject` instead of `Project`
