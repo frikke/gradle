@@ -97,82 +97,10 @@ $ cd lib
 
 Create a file called `build.gradle(.kts)` and add the following lines to it:
 
-[.multi-language-sample]
-=====
-.lib/build.gradle.kts
-[source,kotlin]
-----
-plugins {
-    id("java")
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation("com.google.guava:guava:32.1.1-jre")
-}
-
-tasks.named<Test>("test") {
-    useJUnitPlatform()
-}
-
-tasks.register("task3"){
-    println("REGISTER TASK3: This is executed during the configuration phase")
-}
-
-tasks.named("task3"){
-    println("NAMED TASK3: This is executed during the configuration phase")
-    doFirst {
-        println("NAMED TASK3 - doFirst: This is executed during the execution phase")
-    }
-    doLast {
-        println("NAMED TASK3 - doLast: This is executed during the execution phase")
-    }
-}
-----
-=====
-[.multi-language-sample]
-=====
-.lib/build.gradle
-[source, groovy]
-----
-plugins {
-    id 'java'
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation 'com.google.guava:guava:32.1.1-jre'
-}
-
-test {
-    useJUnitPlatform()
-}
-
-tasks.register('task3') {
-    println('REGISTER TASK3: This is executed during the configuration phase')
-}
-
-tasks.named('task3') {
-    println('NAMED TASK3: This is executed during the configuration phase')
-    doFirst {
-        println('NAMED TASK3 - doFirst: This is executed during the execution phase')
-    }
-    doLast {
-        println('NAMED TASK3 - doLast: This is executed during the execution phase')
-    }
-}
-----
-=====
+====
+include::sample[dir="snippets/tutorials/authoring-builds/multiProjectBuilds-libBuild/kotlin",files="build.gradle.kts[tags=lib-build]"]
+include::sample[dir="snippets/tutorials/authoring-builds/multiProjectBuilds-libBuild/groovy",files="build.gradle[tags=lib-build]"]
+====
 
 Your project should look like this:
 
@@ -278,36 +206,10 @@ However, the `lib` subproject does not belong to the build, and you won't be abl
 
 To add `lib` to the build, update the `settings.gradle(.kts)` file in the root accordingly:
 
-[.multi-language-sample]
-=====
-.settings.gradle.kts
-[source,kotlin]
-----
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
-
-rootProject.name = "authoring-tutorial"
-
-include("app")
-include("lib") // Add lib to the build
-----
-=====
-[.multi-language-sample]
-=====
-.settings.gradle
-[source, groovy]
-----
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
-rootProject.name = 'authoring-tutorial'
-
-include('app')
-include('lib') // Add lib to the build
-----
-=====
+====
+include::sample[dir="snippets/tutorials/authoring-builds/multiProjectBuilds-addSubproject/kotlin",files="settings.gradle.kts[tags=add-subproject]"]
+include::sample[dir="snippets/tutorials/authoring-builds/multiProjectBuilds-addSubproject/groovy",files="settings.gradle[tags=add-subproject]"]
+====
 
 Let's add the `lib` subproject as an `app` dependency in `app/build.gradle(.kts)`:
 
@@ -525,40 +427,10 @@ include('plugin')
 
 To add our `license-plugin` build to the root project, update the root `settings.gradle(.kts)` file accordingly:
 
-[.multi-language-sample]
-=====
-.settings.gradle.kts
-[source,kotlin]
-----
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
-
-rootProject.name = "authoring-tutorial"
-
-include("app")
-include("subproject")
-
-includeBuild("gradle/license-plugin") // Add the new build
-----
-=====
-[.multi-language-sample]
-=====
-.settings.gradle
-[source, groovy]
-----
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
-rootProject.name = 'running-tutorial-groovy'
-
-include('app')
-include('lib')
-
-includeBuild('gradle/license-plugin')
-----
-=====
+====
+include::sample[dir="snippets/tutorials/authoring-builds/multiProjectBuilds-addBuild/kotlin",files="settings.gradle.kts[tags=add-build]"]
+include::sample[dir="snippets/tutorials/authoring-builds/multiProjectBuilds-addBuild/groovy",files="settings.gradle[tags=add-build]"]
+====
 
 You can view the structure of the root project by running `./gradlew projects` in the root folder `authoring-tutorial`:
 
