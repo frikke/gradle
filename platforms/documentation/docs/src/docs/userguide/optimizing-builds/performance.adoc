@@ -447,43 +447,17 @@ However, it can sometimes sneak in unexpectedly.
 While encrypting data or making remote service calls is obvious when done in a build script, such logic is often hidden inside plugins or custom task classes.
 Expensive operations in a plugin’s `apply()` method or a task's constructor are a red flag:
 
-[source,groovy]
-----
-class ExpensivePlugin implements Plugin<Project> {
-    @Override
-    void apply(Project project) {
-        // BAD: Makes an expensive network call at configuration time
-        def response = new URL("https://example.com/dependencies.json").text
-        def dependencies = new groovy.json.JsonSlurper().parseText(response)
-
-        dependencies.each { dep ->
-            project.dependencies.add("implementation", dep)
-        }
-    }
-}
-----
+====
+include::sample[dir="snippets/optimizing-builds/performanceTips/kotlin",files="build.gradle.kts[tags=expensive-plugin]"]
+include::sample[dir="snippets/optimizing-builds/performanceTips/groovy",files="build.gradle[tags=expensive-plugin]"]
+====
 
 Instead:
 
-[source,groovy]
-----
-class OptimizedPlugin implements Plugin<Project> {
-    @Override
-    void apply(Project project) {
-        project.tasks.register("fetchDependencies") {
-            doLast {
-                // GOOD: Runs only when the task is executed
-                def response = new URL("https://example.com/dependencies.json").text
-                def dependencies = new groovy.json.JsonSlurper().parseText(response)
-
-                dependencies.each { dep ->
-                    project.dependencies.add("implementation", dep)
-                }
-            }
-        }
-    }
-}
-----
+====
+include::sample[dir="snippets/optimizing-builds/performanceTips/kotlin",files="build.gradle.kts[tags=optimized-plugin]"]
+include::sample[dir="snippets/optimizing-builds/performanceTips/groovy",files="build.gradle[tags=optimized-plugin]"]
+====
 
 [[only_apply_plugins_where_needed]]
 === Only Apply Plugins where they're needed
@@ -508,32 +482,16 @@ To optimize this:
 
 - If only one subproject requires the script, remove it from the others, reducing the configuration delay by *2 seconds*.
 +
-[source,groovy]
-----
-project(":subproject1") {
-    apply from: "$rootDir/script-a.gradle"  // Applied only where needed
-}
-
-project(":subproject2") {
-    apply from: "$rootDir/script-a.gradle"
-}
-----
+====
+include::sample[dir="snippets/optimizing-builds/performanceTips/kotlin",files="build.gradle.kts[tags=apply-selectively]"]
+include::sample[dir="snippets/optimizing-builds/performanceTips/groovy",files="build.gradle[tags=apply-selectively]"]
+====
 - If multiple—but not all—subprojects use the script, refactor it into a custom plugin inside <<sharing_build_logic_between_subprojects.adoc#sec:using_buildsrc,`buildSrc`>> and apply it only to the relevant subprojects. This reduces configuration time and avoids code duplication.
 +
-[source,groovy]
-----
-plugins {
-    id 'com.example.my-custom-plugin' apply false  // Declare the plugin but don't apply it globally
-}
-
-project(":subproject1") {
-    apply plugin: 'com.example.my-custom-plugin'  // Apply only where needed
-}
-
-project(":subproject2") {
-    apply plugin: 'com.example.my-custom-plugin'
-}
-----
+====
+include::sample[dir="snippets/optimizing-builds/performanceTips/kotlin",files="build.gradle.kts[tags=apply-custom-plugin]"]
+include::sample[dir="snippets/optimizing-builds/performanceTips/groovy",files="build.gradle[tags=apply-custom-plugin]"]
+====
 
 [[statically_compile_tasks_and_plugins]]
 === Statically Compile Tasks and Plugins
@@ -619,15 +577,10 @@ repositories {
 Dynamic (`"2.+"`) and snapshot versions (`"-SNAPSHOT"`) cause Gradle to check remote repositories frequently.
 By default, Gradle caches dynamic versions for 24 hours, but this can be configured with the `cacheDynamicVersionsFor` and `cacheChangingModulesFor` properties:
 
-[source,groovy]
-----
-configurations.all {
-    resolutionStrategy {
-        cacheDynamicVersionsFor 4, 'hours'
-        cacheChangingModulesFor 10, 'minutes'
-    }
-}
-----
+====
+include::sample[dir="snippets/optimizing-builds/performanceTips/kotlin",files="build.gradle.kts[tags=cache-dynamic-versions]"]
+include::sample[dir="snippets/optimizing-builds/performanceTips/groovy",files="build.gradle[tags=cache-dynamic-versions]"]
+====
 
 If a build file or initialization script lowers these values, Gradle queries repositories more often.
 When you don't need the absolute latest release of a dependency every time you build, consider
@@ -659,17 +612,10 @@ Gradle caches results, but triggering resolution in the *configuration phase* ad
 
 This code forces dependency resolution during configuration, slowing down every build:
 
-[source,groovy]
-----
-task printDeps {
-    doFirst {
-        configurations.compileClasspath.files.each { println it } // Deferring Dependency Resolution
-    }
-    doLast {
-        configurations.compileClasspath.files.each { println it } // Resolving Dependencies During Configuration
-    }
-}
-----
+====
+include::sample[dir="snippets/optimizing-builds/performanceTips/kotlin",files="build.gradle.kts[tags=defer-resolution]"]
+include::sample[dir="snippets/optimizing-builds/performanceTips/groovy",files="build.gradle[tags=defer-resolution]"]
+====
 
 [[switch_to_declarative_syntax]]
 ==== Switch to declarative syntax
@@ -724,17 +670,10 @@ This logic may exist in your build scripts or as part of a third-party plugin.
 
 This example forces a custom dependency version but also introduces expensive logic that slows down resolution:
 
-[source,groovy]
-----
-configurations.all {
-    resolutionStrategy.eachDependency { details ->
-        if (details.requested.group == "com.example" && details.requested.name == "library") {
-            def versionInfo = new URL("https://example.com/version-check").text  // Remote call during resolution
-            details.useVersion(versionInfo.trim())  // Dynamically setting a version based on an HTTP response
-        }
-    }
-}
-----
+====
+include::sample[dir="snippets/optimizing-builds/performanceTips/kotlin",files="build.gradle.kts[tags=custom-resolution-logic]"]
+include::sample[dir="snippets/optimizing-builds/performanceTips/groovy",files="build.gradle[tags=custom-resolution-logic]"]
+====
 
 Instead of fetching dependency versions dynamically, define them in a version catalog:
 
