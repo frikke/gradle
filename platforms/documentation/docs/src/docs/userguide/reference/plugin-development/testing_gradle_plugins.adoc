@@ -176,21 +176,10 @@ When you define a source set, Gradle automatically sets up compilation tasks for
 A pre-configured source set can be created with one line of build script code.
 The source set automatically registers configurations to define dependencies for the sources of the source set:
 
-[source,groovy]
-----
-// Define a source set named 'test' for test sources
-sourceSets {
-    test {
-        java {
-            srcDirs = ['src/test/java']
-        }
-    }
-}
-// Specify a test implementation dependency on JUnit
-dependencies {
-    testImplementation 'junit:junit:4.12'
-}
-----
+====
+include::sample[dir="snippets/reference/plugin-development/testingPlugins-sourceSetExample/kotlin",files="build.gradle.kts[tags=source-set-example]"]
+include::sample[dir="snippets/reference/plugin-development/testingPlugins-sourceSetExample/groovy",files="build.gradle[tags=source-set-example]"]
+====
 
 We use that to define an `integrationTestImplementation` dependency to the project itself, which represents the "main" variant of our project (i.e., the compiled plugin code):
 
