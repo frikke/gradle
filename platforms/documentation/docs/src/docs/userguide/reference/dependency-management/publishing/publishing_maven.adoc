@@ -295,81 +295,13 @@ You may have some logic inside your publishing block or in a plugin that is depe
 For instance, the following logic assumes that the subprojects will be evaluated when the artifactId is set:
 
 ====
-[.multi-language-sample]
-=====
-.build.gradle.kts
-[source,kotlin]
-----
-subprojects {
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components["java"])
-                artifactId = tasks.jar.get().archiveBaseName.get()
-            }
-        }
-    }
-}
-----
-=====
-[.multi-language-sample]
-=====
-.build.gradle
-[source,groovy]
-----
-subprojects {
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                artifactId = jar.archiveBaseName
-            }
-        }
-    }
-}
-----
-=====
+include::sample[dir="snippets/reference/dependency-management/publishing/publishingMaven-deferredConfig/kotlin",files="build.gradle.kts[tags=deferred-config-before]"]
+include::sample[dir="snippets/reference/dependency-management/publishing/publishingMaven-deferredConfig/groovy",files="build.gradle[tags=deferred-config-before]"]
 ====
 
 This kind of logic must now be wrapped in an `afterEvaluate {}` block.
 
 ====
-[.multi-language-sample]
-=====
-.build.gradle.kts
-[source,kotlin]
-----
-subprojects {
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components["java"])
-                afterEvaluate {
-                    artifactId = tasks.jar.get().archiveBaseName.get()
-                }
-            }
-        }
-    }
-}
-----
-=====
-[.multi-language-sample]
-=====
-.build.gradle
-[source,groovy]
-----
-subprojects {
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                afterEvaluate {
-                    artifactId = jar.archiveBaseName
-                }
-            }
-        }
-    }
-}
-----
-=====
+include::sample[dir="snippets/reference/dependency-management/publishing/publishingMaven-deferredConfig/kotlin",files="build.gradle.kts[tags=deferred-config-after]"]
+include::sample[dir="snippets/reference/dependency-management/publishing/publishingMaven-deferredConfig/groovy",files="build.gradle[tags=deferred-config-after]"]
 ====
