@@ -1,0 +1,31 @@
+// tag::eager-evaluation[]
+def version = project.version.toString()         // evaluated now
+def file = new File('build/output.txt')          // evaluated now
+myTask.outputFile.set(file)
+// end::eager-evaluation[]
+
+// tag::lazy-evaluation[]
+RegularFileProperty outputFile = project.objects.fileProperty()
+outputFile.set(layout.buildDirectory.file('output.txt'))    // evaluated later
+// end::lazy-evaluation[]
+
+// tag::eager-task[]
+// Not Configuration Cache compatible
+tasks.register('printVersion') {
+    doLast {
+        def ver = project.version.toString()
+        println("Version is $ver")
+    }
+}
+// end::eager-task[]
+
+// tag::lazy-task[]
+// Configuration Cache compatible
+tasks.register('printVersion') {
+    def version = project.objects.property(String)
+    version.set(project.version.toString())
+    doLast {
+        println("Version is ${version.get()}")
+    }
+}
+// end::lazy-task[]

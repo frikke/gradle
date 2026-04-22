@@ -88,12 +88,10 @@ Let's review the differences one more time:
 * Values are resolved *as soon as the line is executed*.
 * Prevents Gradle from optimizing build logic.
 
-[source,kotlin]
-----
-val version = project.version.toString()         // evaluated now
-val file = File("build/output.txt")              // evaluated now
-myTask.outputFile.set(file)
-----
+====
+include::sample[dir="snippets/fundamentals/authoring-builds/gradleManagedTypes/kotlin",files="build.gradle.kts[tags=eager-evaluation]"]
+include::sample[dir="snippets/fundamentals/authoring-builds/gradleManagedTypes/groovy",files="build.gradle[tags=eager-evaluation]"]
+====
 
 These eager values are resolved even if the task isn’t run, breaking configuration cache compatibility and reducing build performance.
 
@@ -104,11 +102,10 @@ These eager values are resolved even if the task isn’t run, breaking configura
 * Enables Gradle to apply caching, parallel execution, and configuration avoidance.
 * Fully supports configuration cache and incremental builds.
 
-[source,kotlin]
-----
-val outputFile: RegularFileProperty = project.objects.fileProperty()
-outputFile.set(layout.buildDirectory.file("output.txt"))    // evaluated later
-----
+====
+include::sample[dir="snippets/fundamentals/authoring-builds/gradleManagedTypes/kotlin",files="build.gradle.kts[tags=lazy-evaluation]"]
+include::sample[dir="snippets/fundamentals/authoring-builds/gradleManagedTypes/groovy",files="build.gradle[tags=lazy-evaluation]"]
+====
 
 Here, nothing is resolved immediately—Gradle delays evaluation until it’s actually required.
 
@@ -119,30 +116,17 @@ Let's take a look at an example.
 
 This task will break the Configuration Cache due to *eager* access:
 
-[source,kotlin]
-----
-// Not Configuration Cache compatible
-tasks.register("printVersion") {
-    doLast {
-        val version = project.version.toString()
-        println("Version is $version")
-    }
-}
-----
+====
+include::sample[dir="snippets/fundamentals/authoring-builds/gradleManagedTypes/kotlin",files="build.gradle.kts[tags=eager-task]"]
+include::sample[dir="snippets/fundamentals/authoring-builds/gradleManagedTypes/groovy",files="build.gradle[tags=eager-task]"]
+====
 
 The fix: use a *lazy* `Provider` or a `Property<String>`:
 
-[source,kotlin]
-----
-// Configuration Cache compatible
-tasks.register("printVersion") {
-    val version: Property<String> = project.objects.property(String::class.java)
-    version.set(project.version.toString())
-    doLast {
-        println("Version is ${version.get()}")
-    }
-}
-----
+====
+include::sample[dir="snippets/fundamentals/authoring-builds/gradleManagedTypes/kotlin",files="build.gradle.kts[tags=lazy-task]"]
+include::sample[dir="snippets/fundamentals/authoring-builds/gradleManagedTypes/groovy",files="build.gradle[tags=lazy-task]"]
+====
 
 [.text-right]
 **Next Step:** <<dependencies_intermediate.adoc#dependencies_intro,Learn about Declaring and Managing Dependencies>> >>
