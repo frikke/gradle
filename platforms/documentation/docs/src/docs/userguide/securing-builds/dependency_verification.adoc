@@ -219,32 +219,8 @@ WARNING: Disabling dependency verification reduces security. This API exists for
 To disable verification for a configuration, use the `ResolutionStrategy#disableDependencyVerification` method:
 
 ====
-[.multi-language-sample]
-=====
-[source,kotlin]
-----
-configurations {
-    myConfiguration {
-        resolutionStrategy {
-            disableDependencyVerification()
-        }
-    }
-}
-----
-=====
-[.multi-language-sample]
-=====
-[source,groovy]
-----
-configurations {
-    myConfiguration {
-        resolutionStrategy {
-            disableDependencyVerification()
-        }
-    }
-}
-----
-=====
+include::sample[dir="snippets/securing-builds/dependencyVerification-disableVerification/kotlin",files="build.gradle.kts[tags=disable-verification]"]
+include::sample[dir="snippets/securing-builds/dependencyVerification-disableVerification/groovy",files="build.gradle[tags=disable-verification]"]
 ====
 
 You can also disable verification on detached configurations:
