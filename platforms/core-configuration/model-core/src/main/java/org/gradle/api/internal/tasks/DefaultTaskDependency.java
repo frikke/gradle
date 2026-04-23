@@ -115,7 +115,7 @@ public class DefaultTaskDependency extends AbstractTaskDependency {
                 Closure closure = (Closure) dependency;
                 Object closureResult;
                 try {
-                    closureResult = closure.call(new Object[]{ null });
+                    closureResult = closure.call(new Object[]{null});
                 } catch (NullPointerException e) {
                     DeprecationLogger.deprecateAction("Accessing tasks provided to task dependency closures")
                         .willBecomeAnErrorInGradle10()
