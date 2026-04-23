@@ -7,7 +7,7 @@ group = "org.gradle.sample"
 version = "1.0"
 
 // tag::test-source-set[]
-val integrationTest by sourceSets.creating
+val integrationTest = sourceSets.create("integrationTest")
 
 dependencies {
     "integrationTestImplementation"(project())
@@ -27,7 +27,7 @@ tasks.check {
 }
 // end::test-task[]
 
-val functionalTest by sourceSets.creating
+val functionalTest = sourceSets.create("functionalTest")
 dependencies {
     "functionalTestImplementation"(project())
 }
@@ -48,15 +48,15 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.spockframework:spock-bom:2.3-groovy-4.0"))
+    testImplementation(platform("org.spockframework:spock-bom:2.4-groovy-4.0"))
     testImplementation("org.spockframework:spock-core")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    "integrationTestImplementation"(platform("org.spockframework:spock-bom:2.3-groovy-4.0"))
+    "integrationTestImplementation"(platform("org.spockframework:spock-bom:2.4-groovy-4.0"))
     "integrationTestImplementation"("org.spockframework:spock-core")
     "integrationTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
 
-    "functionalTestImplementation"(platform("org.spockframework:spock-bom:2.3-groovy-4.0"))
+    "functionalTestImplementation"(platform("org.spockframework:spock-bom:2.4-groovy-4.0"))
     "functionalTestImplementation"("org.spockframework:spock-core")
     "functionalTestRuntimeOnly"("org.junit.platform:junit-platform-launcher")
 }
