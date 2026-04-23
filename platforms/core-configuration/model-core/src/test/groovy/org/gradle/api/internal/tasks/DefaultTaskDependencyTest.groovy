@@ -82,14 +82,15 @@ class DefaultTaskDependencyTest extends Specification {
 
     @ExpectDeprecation("Accessing tasks provided to task dependency closures has been deprecated")
     def "can depend on a closure"() {
+        Closure closure = Mock(Closure)
         when:
-        dependency.add({ Task suppliedTask ->
-            assert suppliedTask == task
-            otherTask
-        })
+        dependency.add(closure)
+        def result = dependency.getDependencies(task)
 
         then:
-        dependency.getDependencies(task) == toSet(otherTask)
+        result == toSet(otherTask)
+        1 * closure.call(new Object[] { null }) >> { arg -> throw new NullPointerException() }
+        1 * closure.call(task) >> { arg -> task }
     }
 
     def "can depend on a closure that returns null"() {
@@ -224,7 +225,6 @@ The following types/formats are supported:
   - A TaskDependency instance
   - A Provider that represents a task output
   - A Provider instance that returns any of these types
-  - A Closure instance that returns any of these types
   - A Callable instance that returns any of these types
   - An Iterable, Collection, Map or array instance that contains any of these types''')
     }

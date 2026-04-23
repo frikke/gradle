@@ -107,13 +107,13 @@ def foo = tasks.register("foo")
 // The below usages of dependsOn access the Task object provided as a parameter.
 tasks.register("bar") {
     dependsOn { task ->
-        task.toString()
+        task.getName()
         foo
     }
 }
 tasks.register("baz") {
     dependsOn {
-        it.toString()
+        it.getName()
         foo
     }
 }

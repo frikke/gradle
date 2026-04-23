@@ -335,7 +335,6 @@ The following types/formats are supported:
   - A TaskDependency instance
   - A Provider that represents a task output
   - A Provider instance that returns any of these types
-  - A Closure instance that returns any of these types
   - A Callable instance that returns any of these types
   - An Iterable, Collection, Map or array instance that contains any of these types""")
 
@@ -368,7 +367,6 @@ The following types/formats are supported:
   - A TaskDependency instance
   - A Provider that represents a task output
   - A Provider instance that returns any of these types
-  - A Closure instance that returns any of these types
   - A Callable instance that returns any of these types
   - An Iterable, Collection, Map or array instance that contains any of these types""")
 
@@ -408,7 +406,6 @@ The following types/formats are supported:
   - A TaskDependency instance
   - A Provider that represents a task output
   - A Provider instance that returns any of these types
-  - A Closure instance that returns any of these types
   - A Callable instance that returns any of these types
   - An Iterable, Collection, Map or array instance that contains any of these types""")
 
@@ -442,7 +439,6 @@ The following types/formats are supported:
   - A TaskDependency instance
   - A Provider that represents a task output
   - A Provider instance that returns any of these types
-  - A Closure instance that returns any of these types
   - A Callable instance that returns any of these types
   - An Iterable, Collection, Map or array instance that contains any of these types""")
 
