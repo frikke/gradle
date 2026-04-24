@@ -204,7 +204,7 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
     }
 
     @Override
-    public @Nullable ProjectState findProjectState(Path identityPath) {
+    public @Nullable ProjectState findProject(Path identityPath) {
         synchronized (lock) {
             return projectsByPath.get(identityPath);
         }
@@ -368,7 +368,7 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
                 return null;
             }
 
-            ProjectStateImpl parentState = projectsByPath.get(parentIdentity.getBuildTreePath());
+            ProjectState parentState = findProject(parentIdentity.getBuildTreePath());
             if (parentState == null) {
                 throw new IllegalStateException("Parent project " + parentIdentity.getBuildTreePath() + " is not registered for " + identity);
             }
@@ -399,8 +399,8 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
             return descriptor;
         }
 
-        private ProjectStateImpl getStateForChild(ProjectIdentity childIdentity) {
-            return projectsByPath.get(childIdentity.getBuildTreePath());
+        private ProjectState getStateForChild(ProjectIdentity childIdentity) {
+            return findProject(childIdentity.getBuildTreePath());
         }
 
         @Override
