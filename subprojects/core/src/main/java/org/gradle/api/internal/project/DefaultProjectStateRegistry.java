@@ -161,7 +161,7 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         ServiceRegistry buildServices = buildState.getMutableModel().getServices();
         IProjectFactory projectFactory = buildServices.get(IProjectFactory.class);
         StateTransitionControllerFactory stateTransitionControllerFactory = buildServices.get(StateTransitionControllerFactory.class);
-        ProjectStateImpl projectState = new ProjectStateImpl(buildState, descriptor, projectFactory, stateTransitionControllerFactory, buildServices);
+        ProjectStateImpl projectState = new ProjectStateImpl(buildState, descriptor, projectFactory, stateTransitionControllerFactory, buildServices, workerLeaseService, this);
         projectsByPath.put(descriptor.getIdentity().getBuildTreePath(), projectState);
         projectsById.put(projectState.getComponentIdentifier(), projectState);
         projectRegistry.add(descriptor.getIdentity().getProjectPath(), projectState);
@@ -316,7 +316,7 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         }
     }
 
-    private class ProjectStateImpl implements ProjectState, Closeable {
+    private static class ProjectStateImpl implements ProjectState, Closeable {
 
         private final ImmutableProjectDescriptor descriptor;
         private final IProjectFactory projectFactory;
@@ -327,18 +327,24 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         private final ResourceLock taskLock;
         private final Set<Thread> canDoAnythingToThisProject = new CopyOnWriteArraySet<>();
         private final ProjectLifecycleController controller;
+        private final WorkerLeaseService workerLeaseService;
+        private final ProjectStateLookup projectStateLookup;
 
         ProjectStateImpl(
             BuildState owner,
             ImmutableProjectDescriptor descriptor,
             IProjectFactory projectFactory,
             StateTransitionControllerFactory stateTransitionControllerFactory,
-            ServiceRegistry buildServices
+            ServiceRegistry buildServices,
+            WorkerLeaseService workerLeaseService,
+            ProjectStateLookup projectStateLookup
         ) {
             this.owner = owner;
             this.descriptor = descriptor;
             this.projectFactory = projectFactory;
             this.identity = descriptor.getIdentity();
+            this.workerLeaseService = workerLeaseService;
+            this.projectStateLookup = projectStateLookup;
             this.allProjectsLock = workerLeaseService.getAllProjectsLock(owner.getIdentityPath());
             this.projectLock = workerLeaseService.getProjectLock(owner.getIdentityPath(), identity.getBuildTreePath());
             this.taskLock = workerLeaseService.getTaskExecutionLock(owner.getIdentityPath(), identity.getBuildTreePath());
@@ -368,7 +374,7 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
                 return null;
             }
 
-            ProjectState parentState = findProject(parentIdentity.getBuildTreePath());
+            ProjectState parentState = projectStateLookup.findProject(parentIdentity.getBuildTreePath());
             if (parentState == null) {
                 throw new IllegalStateException("Parent project " + parentIdentity.getBuildTreePath() + " is not registered for " + identity);
             }
@@ -400,7 +406,7 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         }
 
         private ProjectState getStateForChild(ProjectIdentity childIdentity) {
-            return findProject(childIdentity.getBuildTreePath());
+            return projectStateLookup.findProject(childIdentity.getBuildTreePath());
         }
 
         @Override
