@@ -98,7 +98,6 @@ public abstract class DefaultGradle extends AbstractPluginAware implements Gradl
     private @Nullable Supplier<? extends ClassLoaderScope> classLoaderScope;
     private @Nullable ClassLoaderScope baseProjectClassLoaderScope;
     private @Nullable SettingsState settings;
-    private @Nullable ProjectState rootProject;
     private @Nullable ProjectState defaultProject;
     private boolean projectsLoaded;
 
@@ -120,7 +119,7 @@ public abstract class DefaultGradle extends AbstractPluginAware implements Gradl
                 ProjectEvaluationListener isolatedListener = isolatedProjectEvaluationListenerProvider.isolateFor(DefaultGradle.this);
 
                 if (!rootProjectActions.isEmpty()) {
-                    getRootProjectState().applyToMutableState(rootProjectModel -> {
+                    buildState.getRootProject().applyToMutableState(rootProjectModel -> {
                         gradleLifecycleActionExecutor.executeBeforeProjectFor(rootProjectModel);
                         buildScopeServices.get(CrossProjectConfigurator.class).rootProject(rootProjectModel, rootProjectActions);
                     });
@@ -139,7 +138,11 @@ public abstract class DefaultGradle extends AbstractPluginAware implements Gradl
 
     @Override
     public String toString() {
-        return rootProject == null ? "build" : ("build '" + rootProject.getName() + "'");
+        if (!buildState.isProjectsLoaded()) {
+            return "build";
+        }
+        // Does the rootProject name really make sense here? Wouldn't it be better to use the build identity path?
+        return "build '" + buildState.getRootProject().getName() + "'";
     }
 
     @Override
@@ -222,7 +225,6 @@ public abstract class DefaultGradle extends AbstractPluginAware implements Gradl
     public void resetState() {
         classLoaderScope = null;
         baseProjectClassLoaderScope = null;
-        rootProject = null;
         defaultProject = null;
         projectsLoaded = false;
         includedBuilds = null;
@@ -285,20 +287,7 @@ public abstract class DefaultGradle extends AbstractPluginAware implements Gradl
     public ProjectInternal getRootProject() {
         // At the very least, verify we have the lock at the time of access.
         // In most cases other Gradle implementations will wrap the project in mutable state checks.
-        return getRootProjectState().fromMutableState(m -> m);
-    }
-
-    @Override
-    public ProjectState getRootProjectState() {
-        if (rootProject == null) {
-            throw new IllegalStateException("The root project is not yet available for " + this + ".");
-        }
-        return rootProject;
-    }
-
-    @Override
-    public void setRootProjectState(ProjectState rootProject) {
-        this.rootProject = rootProject;
+        return buildState.getRootProject().fromMutableState(m -> m);
     }
 
     @Override
@@ -308,7 +297,7 @@ public abstract class DefaultGradle extends AbstractPluginAware implements Gradl
 
     private void rootProject(String registrationPoint, Action<? super Project> action) {
         if (projectsLoaded) {
-            getRootProjectState().applyToMutableState(action::execute);
+            buildState.getRootProject().applyToMutableState(action::execute);
         } else {
             // only need to decorate when this callback is delayed
             rootProjectActions.add(decorate(registrationPoint, action));

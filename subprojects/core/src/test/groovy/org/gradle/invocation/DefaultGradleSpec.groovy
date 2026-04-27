@@ -20,7 +20,6 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.ProjectEvaluationListener
 import org.gradle.api.ProjectState
-import org.gradle.api.internal.project.ProjectState as InternalProjectState
 import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionListener
 import org.gradle.api.initialization.dsl.ScriptHandler
@@ -376,6 +375,16 @@ class DefaultGradleSpec extends Specification {
     }
 
     def "get root project throws exception when root project is not available"() {
+        given:
+        def rootProjectState = projectState('root')
+        def rootProjectAvailable = false
+        _ * build.getRootProject() >> {
+            if (!rootProjectAvailable) {
+                throw new IllegalStateException("Projects are not yet loaded.")
+            }
+            return rootProjectState
+        }
+
         when:
         gradle.rootProject
 
@@ -383,12 +392,10 @@ class DefaultGradleSpec extends Specification {
         thrown IllegalStateException
 
         when:
-        def rootProjectState = projectState('root')
-        gradle.rootProjectState = rootProjectState
+        rootProjectAvailable = true
 
         then:
         gradle.rootProject == rootProjectState.mutableModel
-        gradle.rootProjectState == rootProjectState
     }
 
     def "root project action is executed when projects are loaded"() {
@@ -396,7 +403,7 @@ class DefaultGradleSpec extends Specification {
         def action = Mock(Action)
         def rootProjectState = projectState('root')
         def rootProject = rootProjectState.mutableModel
-        gradle.rootProjectState = rootProjectState
+        _ * build.getRootProject() >> rootProjectState
 
         when:
         gradle.rootProject(action)
@@ -419,7 +426,7 @@ class DefaultGradleSpec extends Specification {
         def action = Mock(Action)
         def rootProjectState = projectState('root')
         def rootProject = rootProjectState.mutableModel
-        gradle.rootProjectState = rootProjectState
+        _ * build.getRootProject() >> rootProjectState
 
         when:
         gradle.allprojects(action)
@@ -438,11 +445,17 @@ class DefaultGradleSpec extends Specification {
     }
 
     def "has toString()"() {
+        given:
+        def projectsLoaded = false
+        def rootProjectState = projectState('rootProject')
+        _ * build.isProjectsLoaded() >> { projectsLoaded }
+        _ * build.getRootProject() >> rootProjectState
+
         expect:
         gradle.toString() == 'build'
 
         when:
-        gradle.rootProjectState = projectState('rootProject')
+        projectsLoaded = true
 
         then:
         gradle.toString() == "build 'rootProject'"
@@ -487,9 +500,9 @@ class DefaultGradleSpec extends Specification {
         return project
     }
 
-    private InternalProjectState projectState(String name) {
+    private org.gradle.api.internal.project.ProjectState projectState(String name) {
         def project = project(name)
-        def state = Mock(InternalProjectState)
+        def state = Mock(org.gradle.api.internal.project.ProjectState)
         _ * state.name >> name
         _ * state.mutableModel >> project
         _ * state.applyToMutableState(_) >> { java.util.function.Consumer c -> c.accept(project) }

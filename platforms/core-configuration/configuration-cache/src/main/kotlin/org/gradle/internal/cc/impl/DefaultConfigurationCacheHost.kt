@@ -120,7 +120,6 @@ class DefaultConfigurationCacheHost internal constructor(
         private
         fun createRootProject() {
             val rootProjectState = createProject(rootProjectDescriptor())
-            gradle.rootProjectState = rootProjectState
             gradle.defaultProjectState = rootProjectState
         }
 

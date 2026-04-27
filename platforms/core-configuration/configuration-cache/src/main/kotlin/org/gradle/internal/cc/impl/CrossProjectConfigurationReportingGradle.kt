@@ -83,13 +83,13 @@ class CrossProjectConfigurationReportingGradle(
         }
 
     override fun getRootProject(): ProjectInternal =
-        delegate.rootProjectState.fromMutableState {
-            // Intentionally leak mutable state here, as we wrapped it in our mutable violation checks already.
-            crossProjectModelAccess.access(referrerProject, it)
-        }
+        getCrossProjectRootProject()
 
-    override fun getRootProjectState(): InternalProjectState =
-        delegate.rootProjectState
+    // Split out so it's clear we're not calling the @ForExternalUse method.
+    private fun getCrossProjectRootProject(): ProjectInternal = delegate.owner.rootProject.fromMutableState {
+        // Intentionally leak mutable state here, as we wrapped it in our mutable violation checks already.
+        crossProjectModelAccess.access(referrerProject, it)
+    }
 
     override fun rootProject(action: Action<in Project>) {
         delegate.rootProject(action.withCrossProjectModelAccessCheck())
@@ -99,7 +99,7 @@ class CrossProjectConfigurationReportingGradle(
         // Use the delegate's implementation of `rootProject` to ensure that the action is only invoked once the rootProject is available
         delegate.rootProject {
             // Instead of the rootProject's `allProjects`, collect the projects while still tracking the current referrer project
-            val root = this@CrossProjectConfigurationReportingGradle.rootProject
+            val root = this@CrossProjectConfigurationReportingGradle.getCrossProjectRootProject()
             projectConfigurator.allprojects(crossProjectModelAccess.getAllprojects(referrerProject, root), action)
         }
     }
@@ -325,10 +325,6 @@ class CrossProjectConfigurationReportingGradle(
 
     override fun setDefaultProjectState(defaultProject: InternalProjectState) {
         delegate.defaultProjectState = defaultProject
-    }
-
-    override fun setRootProjectState(rootProject: InternalProjectState) {
-        delegate.rootProjectState = rootProject
     }
 
     override fun getBuildListenerBroadcaster(): BuildListener =

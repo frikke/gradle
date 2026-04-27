@@ -45,12 +45,6 @@ import java.util.function.Supplier;
 @UsedByScanPlugin
 @ServiceScope(Scope.Build.class)
 public interface GradleInternal extends Gradle, PluginAwareInternal {
-    /**
-     * Returns the state of the root project.
-     *
-     * @throws IllegalStateException when the root project is not yet available, see {@link #setRootProjectState(ProjectState)}
-     */
-    ProjectState getRootProjectState() throws IllegalStateException;
 
     @Override
     @Nullable
@@ -73,8 +67,10 @@ public interface GradleInternal extends Gradle, PluginAwareInternal {
 
     /**
      * Returns the state of the default project. This is used to resolve relative names and paths provided on the UI.
+     *
+     * @throws IllegalStateException when the build is not loaded yet, see {@link #setDefaultProjectState(ProjectState)}
      */
-    ProjectState getDefaultProjectState();
+    ProjectState getDefaultProjectState() throws IllegalStateException;
 
     /**
      * Returns the broadcaster for {@link ProjectEvaluationListener} events for this build
@@ -104,14 +100,6 @@ public interface GradleInternal extends Gradle, PluginAwareInternal {
      * @param defaultProject The state of the default project for this build.
      */
     void setDefaultProjectState(ProjectState defaultProject);
-
-    /**
-     * Called by the BuildLoader after the root project is determined. Until the BuildLoader
-     * is executed, {@link #getRootProjectState()} will throw {@link IllegalStateException}.
-     *
-     * @param rootProject The state of the root project for this build.
-     */
-    void setRootProjectState(ProjectState rootProject);
 
     /**
      * Returns the broadcaster for {@link BuildListener} events

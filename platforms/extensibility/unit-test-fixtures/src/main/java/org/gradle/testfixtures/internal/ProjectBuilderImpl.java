@@ -203,7 +203,6 @@ public class ProjectBuilderImpl {
         projectState.createMutableModel(rootProjectScope, baseScope);
         ProjectInternal project = projectState.getMutableModel();
 
-        gradle.setRootProjectState(projectState);
         gradle.setDefaultProjectState(projectState);
 
         // Lock root project; this won't ever be released as ProjectBuilder has no lifecycle

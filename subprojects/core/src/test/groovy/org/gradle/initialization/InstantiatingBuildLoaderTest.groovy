@@ -104,7 +104,6 @@ class InstantiatingBuildLoaderTest extends Specification {
         1 * rootProjectState.createMutableModel(rootProjectClassLoaderScope, baseProjectClassLoaderScope)
 
         and:
-        1 * gradle.setRootProjectState(rootProjectState)
         1 * gradle.setDefaultProjectState(rootProjectState)
     }
 
@@ -124,7 +123,6 @@ class InstantiatingBuildLoaderTest extends Specification {
         1 * childProjectState.createMutableModel(childProjectClassLoaderScope, baseProjectClassLoaderScope)
 
         and:
-        1 * gradle.setRootProjectState(rootProjectState)
         1 * gradle.setDefaultProjectState(childProjectState)
 
         and:

@@ -99,7 +99,7 @@ public class BuildLogger implements InternalBuildListener, TaskExecutionGraphLis
     @Override
     public void projectsLoaded(Gradle gradle) {
         if (logger.isInfoEnabled()) {
-            ProjectState rootProjectState = ((GradleInternal) gradle).getRootProjectState();
+            ProjectState rootProjectState = ((GradleInternal) gradle).getOwner().getRootProject();
             rootProjectState.applyToMutableState(rootProject -> {
                 logger.info("Projects loaded. Root project using {}.", rootProject.getBuildScriptSource().getDisplayName());
                 logger.info("Included projects: {}", rootProject.getAllprojects());

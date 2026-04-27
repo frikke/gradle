@@ -120,16 +120,7 @@ class CrossBuildConfigurationReportingGradle(
     // region mutable state
     override fun getRootProject(): ProjectInternal {
         onBuildMutableStateAccess("getRootProject")
-        return delegate.rootProjectState.mutableModel
-    }
-
-    override fun getRootProjectState(): ProjectState {
-        onBuildMutableStateAccess("getRootProjectState")
-        return delegate.rootProjectState
-    }
-
-    override fun setRootProjectState(rootProject: ProjectState) {
-        shouldNotBeUsed()
+        return delegate.owner.rootProject.mutableModel
     }
 
     override fun getOwner(): BuildState {

@@ -40,7 +40,6 @@ public class InstantiatingBuildLoader implements BuildLoader {
 
         ProjectState projectState = gradle.getOwner().getProjects().getProject(rootProjectDescriptor.path());
         projectState.createMutableModel(rootProjectClassLoaderScope, baseProjectClassLoaderScope);
-        gradle.setRootProjectState(projectState);
 
         createChildProjectsRecursively(gradle.getOwner(), rootProjectDescriptor, rootProjectClassLoaderScope, baseProjectClassLoaderScope);
     }

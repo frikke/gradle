@@ -68,7 +68,6 @@ class IsolatedProjectsBuildStateAccessIntegrationTest extends AbstractIsolatedPr
         "rootProject {gradle.parent.getRootProject()}"                          | ["Build ':build-logic' cannot access Gradle.getRootProject on build ':'", "Build ':build-logic' cannot access Gradle.rootProject on build ':'"]
         "rootProject {gradle.parent.getIncludedBuilds()}"                       | ["Build ':build-logic' cannot access Gradle.getIncludedBuilds on build ':'", "Build ':build-logic' cannot access Gradle.rootProject on build ':'"]
         "rootProject {gradle.parent.includedBuild('build-logic')}"              | ["Build ':build-logic' cannot access Gradle.includedBuild on build ':'", "Build ':build-logic' cannot access Gradle.rootProject on build ':'"]
-        "rootProject {gradle.parent.getDefaultProjectState()}"                  | ["Build ':build-logic' cannot access Gradle.getDefaultProjectState on build ':'", "Build ':build-logic' cannot access Gradle.rootProject on build ':'"]
 
         // Internal API
         "getProjectEvaluationBroadcaster()"                                     | ["Build ':build-logic' cannot access Gradle.getProjectEvaluationBroadcaster on build ':'"]
@@ -117,7 +116,6 @@ class IsolatedProjectsBuildStateAccessIntegrationTest extends AbstractIsolatedPr
 
             // We use "pre-wrapped" parentGradle because calling `gradle.parent` within the closure will return cross-project reporting Gradle,
             // which doesn't prohibit these calls.
-            "rootProject {parentGradle.setRootProjectState(((org.gradle.api.internal.project.ProjectInternal) it).owner)}",
             "rootProject {parentGradle.setDefaultProjectState(((org.gradle.api.internal.project.ProjectInternal) it).owner)} ",
         ]
     }

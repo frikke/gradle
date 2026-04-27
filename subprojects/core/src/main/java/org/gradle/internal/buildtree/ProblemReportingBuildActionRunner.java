@@ -94,7 +94,7 @@ public class ProblemReportingBuildActionRunner implements BuildActionRunner {
         @Override
         public void projectsEvaluated(Gradle gradle) {
             GradleInternal gradleInternal = (GradleInternal) gradle;
-            rootProjectBuildDir = gradleInternal.getRootProjectState().fromMutableState(rootProject ->
+            rootProjectBuildDir = gradleInternal.getOwner().getRootProject().fromMutableState(rootProject ->
                 rootProject.getLayout().getBuildDirectory().getAsFile().get()
             );
         }

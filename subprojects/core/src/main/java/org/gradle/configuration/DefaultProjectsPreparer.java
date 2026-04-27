@@ -45,7 +45,7 @@ public class DefaultProjectsPreparer implements ProjectsPreparer {
             return;
         }
 
-        ProjectInternal rootProject = gradle.getRootProjectState().getMutableModel();
+        ProjectInternal rootProject = gradle.getOwner().getRootProject().getMutableModel();
         if (buildModelParameters.isParallelProjectConfiguration()) {
             projectConfigurer.configureHierarchyInParallel(rootProject);
         } else {

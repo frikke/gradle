@@ -60,7 +60,7 @@ public class RunBuildDependenciesTaskBuilder implements ParameterizedToolingMode
             GradleInternal rootGradle = ((ProjectInternal) project).getGradle().getRoot();
             StartParameter startParameter = rootGradle.getStartParameter();
             List<String> taskPaths = new ArrayList<>(startParameter.getTaskNames());
-            rootGradle.getRootProjectState().applyToMutableState(rootProject -> {
+            rootGradle.getOwner().getRootProject().applyToMutableState(rootProject -> {
                 String parentTaskName = parentTaskName(rootProject, "eclipseClosedDependencies");
                 rootProject.getTasks().register(parentTaskName, task -> task.dependsOn(buildDependencies.toArray(new Object[0])));
                 taskPaths.add(parentTaskName);
