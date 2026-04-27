@@ -86,10 +86,8 @@ class CrossProjectConfigurationReportingGradle(
         getCrossProjectRootProject()
 
     // Split out so it's clear we're not calling the @ForExternalUse method.
-    private fun getCrossProjectRootProject(): ProjectInternal = delegate.owner.rootProject.fromMutableState {
-        // Intentionally leak mutable state here, as we wrapped it in our mutable violation checks already.
-        crossProjectModelAccess.access(referrerProject, it)
-    }
+    private fun getCrossProjectRootProject(): ProjectInternal =
+        crossProjectModelAccess.accessFromState(referrerProject, delegate.owner.rootProject)
 
     override fun rootProject(action: Action<in Project>) {
         delegate.rootProject(action.withCrossProjectModelAccessCheck())
