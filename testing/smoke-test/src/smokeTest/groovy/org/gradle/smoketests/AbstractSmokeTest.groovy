@@ -18,6 +18,7 @@ package org.gradle.smoketests
 
 import org.apache.commons.io.FileUtils
 import org.gradle.api.JavaVersion
+import org.gradle.initialization.StartParameterBuildOptions
 import org.gradle.initialization.StartParameterBuildOptions.ConfigurationCacheMaxProblemsOption
 import org.gradle.initialization.StartParameterBuildOptions.ConfigurationCacheOption
 import org.gradle.initialization.StartParameterBuildOptions.ConfigurationCacheProblemsOption
@@ -157,6 +158,7 @@ abstract class AbstractSmokeTest extends Specification {
             outputParameters() +
             repoMirrorParameters() +
             configurationCacheParameters() +
+            isolatedProjectsParameters() +
             toolchainParameters()
 
         def jvmArgs = ["-Xmx8g", "-XX:MaxMetaspaceSize=1024m", "-XX:+HeapDumpOnOutOfMemoryError"]
@@ -191,6 +193,16 @@ abstract class AbstractSmokeTest extends Specification {
             if (maxProblems > 0) {
                 parameters += ["--${ConfigurationCacheProblemsOption.LONG_OPTION}=warn".toString(),]
             }
+        }
+        return parameters
+    }
+
+    private List<String> isolatedProjectsParameters() {
+        List<String> parameters = []
+        if (GradleContextualExecuter.isIsolatedProjects()) {
+            parameters += [
+                "-D${StartParameterBuildOptions.IsolatedProjectsOption.PROPERTY_NAME}=true".toString()
+            ]
         }
         return parameters
     }
