@@ -1,3 +1,5 @@
+import java.net.URL
+
 plugins {
     id("java")
     id("com.example.my-custom-plugin") apply false
@@ -11,7 +13,7 @@ repositories {
 class ExpensivePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         // BAD: Makes an expensive network call at configuration time
-        val response = java.net.URL("https://example.com/dependencies.json").readText()
+        val response = URL("https://example.com/dependencies.json").readText()
         val dependencies = groovy.json.JsonSlurper().parseText(response) as List<*>
 
         dependencies.forEach { dep ->
@@ -27,7 +29,7 @@ class OptimizedPlugin : Plugin<Project> {
         project.tasks.register("fetchDependencies") {
             doLast {
                 // GOOD: Runs only when the task is executed
-                val response = java.net.URL("https://example.com/dependencies.json").readText()
+                val response = URL("https://example.com/dependencies.json").readText()
                 val dependencies = groovy.json.JsonSlurper().parseText(response) as List<*>
 
                 dependencies.forEach { dep ->
@@ -83,7 +85,7 @@ tasks.register("printDeps") {
 configurations.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "com.example" && requested.name == "library") {
-            val versionInfo = java.net.URL("https://example.com/version-check").readText()  // Remote call during resolution
+            val versionInfo = URL("https://example.com/version-check").readText()  // Remote call during resolution
             useVersion(versionInfo.trim())  // Dynamically setting a version based on an HTTP response
         }
     }

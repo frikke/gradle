@@ -6,14 +6,16 @@ repositories {
     mavenCentral()
 }
 
+/*
 // tag::string-notation[]
 dependencies {
     // GOOD: single-string notation
     implementation 'com.google.guava:guava:32.1.2-jre'
-    // BAD: map notation
+    // BAD: map notation (deprecated, triggers --warning-mode=fail)
     implementation group: 'com.google.guava', name: 'guava', version: '32.1.2-jre'
 }
 // end::string-notation[]
+*/
 
 // tag::conflict-deps[]
 dependencies {

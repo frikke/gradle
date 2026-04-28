@@ -6,6 +6,7 @@ repositories {
     mavenCentral()
 }
 
+/*
 // tag::string-notation[]
 dependencies {
     // GOOD: single-string notation
@@ -14,6 +15,7 @@ dependencies {
     implementation(group = "com.google.guava", name = "guava", version = "32.1.2-jre")
 }
 // end::string-notation[]
+*/
 
 // tag::conflict-deps[]
 dependencies {
