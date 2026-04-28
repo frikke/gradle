@@ -1,6 +1,3 @@
-import org.gradle.api.publish.internal.component.ConfigurationVariantDetailsInternal
-import org.gradle.kotlin.dsl.assign
-
 plugins {
     id("gradlebuild.distribution.implementation-java")
 }
