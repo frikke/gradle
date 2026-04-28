@@ -284,10 +284,10 @@ def value = providers.gradleProperty("myProp")
 ----
 val myProp: String by project.properties
 ----
-| Delegate from `project` directly:
+| Get the project property directly:
 [source,kotlin]
 ----
-val myProp: String by project
+val myProp = project.property("myProp") as String
 ----
 
 | Forwarding properties as system properties:
