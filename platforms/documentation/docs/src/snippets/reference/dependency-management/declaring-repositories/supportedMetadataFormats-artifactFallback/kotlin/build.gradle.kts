@@ -5,7 +5,7 @@ plugins {
 // tag::artifact-fallback[]
 repositories {
     maven {
-        url = uri("https://repo.example.com/maven")
+        setUrl("https://repo.example.com/maven")
         metadataSources {
             mavenPom()
             artifact()

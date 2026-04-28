@@ -34,18 +34,20 @@ dependencies {
 // end::capability-deps[]
 
 // tag::metadata-rule[]
-components {
-    withModule('jaxen:jaxen') {
-        allVariants {
-            withCapabilities {
-                addCapability('xml', 'xpath-support', '1.0')
+dependencies {
+    components {
+        withModule('jaxen:jaxen') {
+            allVariants {
+                withCapabilities {
+                    addCapability('xml', 'xpath-support', '1.0')
+                }
             }
         }
-    }
-    withModule('org.jdom:jdom2') {
-        allVariants {
-            withCapabilities {
-                addCapability('xml', 'xpath-support', '1.0')
+        withModule('org.jdom:jdom2') {
+            allVariants {
+                withCapabilities {
+                    addCapability('xml', 'xpath-support', '1.0')
+                }
             }
         }
     }

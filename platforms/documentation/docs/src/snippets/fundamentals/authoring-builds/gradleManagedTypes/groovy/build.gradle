@@ -1,3 +1,14 @@
+plugins {
+    id 'java'
+}
+
+abstract class MyCustomTask extends DefaultTask {
+    @OutputFile
+    abstract RegularFileProperty getOutputFile()
+}
+
+def myTask = tasks.register('myTask', MyCustomTask).get()
+
 // tag::eager-evaluation[]
 def version = project.version.toString()         // evaluated now
 def file = new File('build/output.txt')          // evaluated now
@@ -21,7 +32,7 @@ tasks.register('printVersion') {
 
 // tag::lazy-task[]
 // Configuration Cache compatible
-tasks.register('printVersion') {
+tasks.register('printVersionLazy') {
     def version = project.objects.property(String)
     version.set(project.version.toString())
     doLast {

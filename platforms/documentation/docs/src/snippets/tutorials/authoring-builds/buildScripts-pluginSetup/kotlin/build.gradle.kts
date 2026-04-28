@@ -4,7 +4,7 @@ plugins {
 
 // tag::update-plugin-config[]
 gradlePlugin {
-    val license by plugins.creating {   // Update name to license
+    plugins.create("license") {         // Update name to license
         id = "com.tutorial.license"     // Update id to com.gradle.license
         implementationClass = "license.LicensePlugin"
     }
@@ -14,8 +14,8 @@ gradlePlugin {
 // tag::greeting-plugin[]
 class LicensePlugin: Plugin<Project> {
     override fun apply(project: Project) {                          // Apply plugin
-        project.tasks.register("greeting") { task ->                // Register a task
-            task.doLast {
+        project.tasks.register("greeting") {                        // Register a task
+            doLast {
                 println("Hello from plugin 'com.tutorial.greeting'")  // Hello world printout
             }
         }

@@ -1,3 +1,14 @@
+plugins {
+    id("java")
+}
+
+abstract class MyCustomTask : DefaultTask() {
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+}
+
+val myTask = tasks.register<MyCustomTask>("myTask").get()
+
 // tag::eager-evaluation[]
 val version = project.version.toString()         // evaluated now
 val file = File("build/output.txt")              // evaluated now
@@ -21,7 +32,7 @@ tasks.register("printVersion") {
 
 // tag::lazy-task[]
 // Configuration Cache compatible
-tasks.register("printVersion") {
+tasks.register("printVersionLazy") {
     val version: Property<String> = project.objects.property(String::class.java)
     version.set(project.version.toString())
     doLast {

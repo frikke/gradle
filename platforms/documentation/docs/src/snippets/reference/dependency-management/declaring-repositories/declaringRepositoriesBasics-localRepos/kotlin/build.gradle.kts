@@ -6,7 +6,7 @@ plugins {
 repositories {
     mavenLocal()
     maven {
-        url = uri("/path/to/local/repo")
+        setUrl("/path/to/local/repo")
     }
     flatDir {
         dirs("libs")

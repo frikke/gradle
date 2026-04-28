@@ -14,6 +14,7 @@ import java.nio.charset.Charset
 
 class LicensePlugin: Plugin<Project> {
     // Don't change anything here
+    override fun apply(project: Project) { }
 }
 
 abstract class LicenseTask : DefaultTask() {

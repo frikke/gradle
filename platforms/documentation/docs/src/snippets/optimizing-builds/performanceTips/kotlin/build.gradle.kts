@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.example.my-custom-plugin") apply false
 }
 
 repositories {
@@ -49,10 +50,6 @@ project(":subproject2") {
 // end::apply-selectively[]
 
 // tag::apply-custom-plugin[]
-plugins {
-    id("com.example.my-custom-plugin") apply false  // Declare the plugin but don't apply it globally
-}
-
 project(":subproject1") {
     apply(plugin = "com.example.my-custom-plugin")  // Apply only where needed
 }

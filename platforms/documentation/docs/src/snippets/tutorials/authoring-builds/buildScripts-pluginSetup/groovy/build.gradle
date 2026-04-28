@@ -4,12 +4,9 @@ plugins {
 
 // tag::update-plugin-config[]
 gradlePlugin {
-    // Define the plugin
-    plugins {
-        license {                       // Update name to license
-            id = 'com.tutorial.license' // Update id to com.gradle.license
-            implementationClass = 'license.LicensePlugin'
-        }
+    plugins.create('license') {         // Update name to license
+        id = 'com.tutorial.license'     // Update id to com.gradle.license
+        implementationClass = 'license.LicensePlugin'
     }
 }
 // end::update-plugin-config[]

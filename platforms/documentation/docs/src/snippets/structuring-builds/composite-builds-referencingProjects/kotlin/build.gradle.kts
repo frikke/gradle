@@ -1,3 +1,7 @@
+plugins {
+    id("java-library")
+}
+
 // tag::referencing-projects[]
 dependencies {
     // ❌ This will fail because ":core-schema" is not in this build's hierarchy

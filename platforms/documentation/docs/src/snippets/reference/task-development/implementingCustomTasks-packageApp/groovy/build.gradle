@@ -3,7 +3,7 @@ plugins {
 }
 
 // tag::package-app[]
-def packageApp = tasks.register(Zip, 'packageApp') {
+def packageApp = tasks.register('packageApp', Zip) {
     from layout.projectDirectory.file('run.sh')                 // input - run.sh file
     from tasks.jar {                                            // input - jar task output
         into 'libs'
