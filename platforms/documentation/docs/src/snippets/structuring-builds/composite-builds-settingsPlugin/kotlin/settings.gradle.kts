@@ -1,6 +1,6 @@
 // tag::settings-plugin[]
 pluginManagement {
-    includeBuild("../my-settings-plugin")
+    includeBuild("./my-settings-plugin")
 }
 
 plugins {
