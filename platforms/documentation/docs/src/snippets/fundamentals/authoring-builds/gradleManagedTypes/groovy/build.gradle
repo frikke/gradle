@@ -2,12 +2,10 @@ plugins {
     id 'java'
 }
 
-abstract class MyCustomTask extends DefaultTask {
-    @OutputFile
-    abstract RegularFileProperty getOutputFile()
+tasks.register('myTask') {
+    ext.outputFile = project.objects.fileProperty()
 }
-
-def myTask = tasks.register('myTask', MyCustomTask).get()
+def myTask = tasks.named('myTask').get()
 
 // tag::eager-evaluation[]
 def version = project.version.toString()         // evaluated now
