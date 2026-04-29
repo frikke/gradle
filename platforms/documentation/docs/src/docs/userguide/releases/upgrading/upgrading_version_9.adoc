@@ -106,6 +106,7 @@ The following code will not be permitted starting in Gradle 10:
 def foo = tasks.register("foo")
 
 // The below usages of dependsOn access the Task object provided as a parameter.
+// This is deprecated behavior.
 tasks.register("bar") {
     dependsOn { task ->
         task.getName()

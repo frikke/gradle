@@ -173,6 +173,7 @@ public class DefaultTaskDependency extends AbstractTaskDependency {
                 formats.add("A TaskDependency instance");
                 formats.add("A Provider that represents a task output");
                 formats.add("A Provider instance that returns any of these types");
+                formats.add("A Closure instance that returns any of these types");
                 formats.add("A Callable instance that returns any of these types");
                 formats.add("An Iterable, Collection, Map or array instance that contains any of these types");
                 throw new UnsupportedNotationException(dependency, String.format("Cannot convert %s to a task.", dependency), null, formats);
