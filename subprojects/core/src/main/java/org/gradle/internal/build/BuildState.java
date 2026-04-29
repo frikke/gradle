@@ -102,7 +102,6 @@ public interface BuildState {
      *
      * <p>
      * This is a convenience method for {@link #getProjects()}{@code .}{@link BuildProjectRegistry#getRootProject() getRootProject()}.
-     * </p>
      */
     default ProjectState getRootProject() {
         return getProjects().getRootProject();

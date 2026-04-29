@@ -73,6 +73,14 @@ public interface GradleInternal extends Gradle, PluginAwareInternal {
     ProjectState getDefaultProjectState() throws IllegalStateException;
 
     /**
+     * Called by the BuildLoader after the default project is determined. Until the BuildLoader
+     * is executed, {@link #getDefaultProjectState()} will throw {@link IllegalStateException}.
+     *
+     * @param defaultProject The state of the default project for this build.
+     */
+    void setDefaultProjectState(ProjectState defaultProject);
+
+    /**
      * Returns the broadcaster for {@link ProjectEvaluationListener} events for this build
      */
     ProjectEvaluationListener getProjectEvaluationBroadcaster();
@@ -92,14 +100,6 @@ public interface GradleInternal extends Gradle, PluginAwareInternal {
      * @param settings The settings for this build.
      */
     void attachSettings(@Nullable SettingsState settings);
-
-    /**
-     * Called by the BuildLoader after the default project is determined. Until the BuildLoader
-     * is executed, {@link #getDefaultProjectState()} will throw {@link IllegalStateException}.
-     *
-     * @param defaultProject The state of the default project for this build.
-     */
-    void setDefaultProjectState(ProjectState defaultProject);
 
     /**
      * Returns the broadcaster for {@link BuildListener} events

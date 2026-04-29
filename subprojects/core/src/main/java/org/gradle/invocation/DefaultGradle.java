@@ -287,7 +287,9 @@ public abstract class DefaultGradle extends AbstractPluginAware implements Gradl
     public ProjectInternal getRootProject() {
         // At the very least, verify we have the lock at the time of access.
         // In most cases other Gradle implementations will wrap the project in mutable state checks.
-        return buildState.getRootProject().fromMutableState(m -> m);
+        // We should use `CrossProjectModelAccess` here too, and potentially remove alternative implementations of `Gradle.getRootProject()` in other Gradle implementations.
+        ProjectState rootProject = buildState.getRootProject();
+        return rootProject.runWithModelLock(rootProject::getMutableModel);
     }
 
     @Override

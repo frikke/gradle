@@ -506,7 +506,7 @@ class DefaultGradleSpec extends Specification {
         _ * state.name >> name
         _ * state.mutableModel >> project
         _ * state.applyToMutableState(_) >> { java.util.function.Consumer c -> c.accept(project) }
-        _ * state.fromMutableState(_) >> { java.util.function.Function f -> f.apply(project) }
+        _ * state.runWithModelLock(_) >> { java.util.function.Supplier s -> s.get() }
         return state
     }
 
