@@ -20,7 +20,7 @@ import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.ToBeFixedForConfigurationCache
 import spock.lang.Issue
 
-class       MapPropertyIntegrationTest extends AbstractIntegrationSpec {
+class MapPropertyIntegrationTest extends AbstractIntegrationSpec {
     def setup() {
         buildFile '''
             abstract class AbstractVerificationTask<K, V> extends DefaultTask {
