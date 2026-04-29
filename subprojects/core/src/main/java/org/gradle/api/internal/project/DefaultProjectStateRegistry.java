@@ -41,7 +41,6 @@ import org.gradle.internal.resources.ResourceLock;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.internal.work.WorkerLeaseService;
 import org.gradle.util.Path;
-import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.io.Closeable;
@@ -80,7 +79,11 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
                 throw new IllegalStateException("Projects for " + owner.getDisplayName() + " have already been registered.");
             }
 
-            registerAllProjectsRecursively(owner, buildProjectRegistry, null, projectRegistry.getRootProject());
+            ProjectDescriptorInternal rootProject = projectRegistry.getRootProject();
+            if (rootProject == null) {
+                throw new IllegalStateException("No root project found for " + owner.getDisplayName());
+            }
+            registerAllProjectsRecursively(owner, buildProjectRegistry, null, rootProject);
         }
     }
 
@@ -236,7 +239,6 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         CompositeStoppable.stoppable(projectsByPath.values()).stop();
     }
 
-    @NullMarked
     private static class DefaultBuildProjectRegistry implements BuildProjectRegistry {
         private final BuildState owner;
         private final WorkerLeaseService workerLeaseService;
@@ -288,7 +290,6 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         }
     }
 
-    @NullMarked
     private static final class AllProjectsAccessImpl implements AllProjectsAccess {
         private final BuildState owner;
         private final WorkerLeaseService workerLeaseService;
@@ -315,7 +316,6 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         }
     }
 
-    @NullMarked
     private class ProjectStateImpl implements ProjectState, Closeable {
 
         private final ImmutableProjectDescriptor descriptor;
@@ -565,6 +565,7 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         private final ProjectLeaseRegistry projectLeaseRegistry;
         private final ModelContainer<?> owner;
         private final ReentrantLock lock = new ReentrantLock();
+        @Nullable
         private volatile T value;
 
         public CalculatedModelValueImpl(ProjectStateImpl owner, WorkerLeaseService projectLeaseRegistry, @Nullable T initialValue) {
@@ -583,6 +584,7 @@ public class DefaultProjectStateRegistry implements ProjectStateRegistry, Closea
         }
 
         @Override
+        @Nullable
         public T getOrNull() {
             // Grab the current value, ignore updates that may be happening
             return value;
