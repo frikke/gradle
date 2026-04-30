@@ -38,7 +38,6 @@ class SmokeTestProject(
                 SpecificBuild.ConfigCacheSmokeTestsMaxJavaVersion,
                 SpecificBuild.ConfigCacheSmokeTestsMinJavaVersion,
                 SpecificBuild.IsolatedProjectsSmokeTestsMaxJavaVersion,
-                SpecificBuild.IsolatedProjectsSmokeTestsMinJavaVersion,
                 SpecificBuild.SmokeIdeTests,
                 SpecificBuild.Gradleception,
             )

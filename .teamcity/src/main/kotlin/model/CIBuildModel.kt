@@ -148,7 +148,6 @@ data class CIBuildModel(
                         SpecificBuild.ConfigCacheSmokeTestsMaxJavaVersion,
                         SpecificBuild.ConfigCacheSmokeTestsMinJavaVersion,
                         SpecificBuild.IsolatedProjectsSmokeTestsMaxJavaVersion,
-                        SpecificBuild.IsolatedProjectsSmokeTestsMinJavaVersion,
                         SpecificBuild.SmokeIdeTests,
                     ),
                 functionalTests =
@@ -755,22 +754,6 @@ enum class SpecificBuild {
                 JvmCategory.MAX_LTS_VERSION,
                 name,
                 "configCacheSmokeTest",
-                splitNumber = 4,
-                flakyTestStrategy = flakyTestStrategy,
-            )
-    },
-    IsolatedProjectsSmokeTestsMinJavaVersion {
-        override fun create(
-            model: CIBuildModel,
-            stage: Stage,
-            flakyTestStrategy: FlakyTestStrategy,
-        ): OsAwareBaseGradleBuildType =
-            SmokeTests(
-                model,
-                stage,
-                JvmCategory.MIN_VERSION,
-                name,
-                "isolatedProjectsSmokeTest",
                 splitNumber = 4,
                 flakyTestStrategy = flakyTestStrategy,
             )
