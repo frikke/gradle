@@ -1641,6 +1641,20 @@ class ProjectFeatureDeclarationIntegrationTest extends AbstractIntegrationSpec i
 
         settingsFile() << pluginsFromIncludedBuild
 
+        if (dependenciesInDefaults) {
+            settingsFile() << """
+            defaults {
+                testProjectType {
+                    dependencies {
+                        spring {
+                            foo = "deps-spring-defaults"
+                        }
+                    }
+                }
+            }
+            """
+        }
+
         buildFile() << """
             testProjectType {
                 ${!dependenciesFirst ? """
@@ -1667,7 +1681,7 @@ class ProjectFeatureDeclarationIntegrationTest extends AbstractIntegrationSpec i
         then:
         outputContains("spring applied to type")
         outputContains("spring applied to dependencies")
-        output.indexOf("spring applied to type") < output.indexOf("spring applied to dependencies") == !dependenciesFirst
+        output.indexOf("spring applied to type") < output.indexOf("spring applied to dependencies") == (!dependenciesFirst && !dependenciesInDefaults)
 
         and:
         outputContains("definition foo = top-spring")
@@ -1676,9 +1690,10 @@ class ProjectFeatureDeclarationIntegrationTest extends AbstractIntegrationSpec i
         outputContains("model foo = deps-spring")
 
         where:
-        dependenciesFirst | order
-        false             | "project type first"
-        true              | "dependencies block first"
+        dependenciesFirst | dependenciesInDefaults | order
+        false             | false                  | "project type first"
+        true              | false                  | "dependencies block first"
+        false             | true                   | "dependencies in defaults, then project type first"
     }
 
     void assertDescriptionOrCause(ExecutionFailure failure, String expectedMessage) {
