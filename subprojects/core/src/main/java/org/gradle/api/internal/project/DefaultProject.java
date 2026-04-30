@@ -87,6 +87,8 @@ import org.gradle.internal.Actions;
 import org.gradle.internal.Cast;
 import org.gradle.internal.Factories;
 import org.gradle.internal.Factory;
+import org.gradle.internal.buildoption.InternalOption;
+import org.gradle.internal.buildoption.InternalOptions;
 import org.gradle.internal.deprecation.DeprecationLogger;
 import org.gradle.internal.event.ListenerBroadcast;
 import org.gradle.internal.extensibility.ExtensibleDynamicObject;
@@ -130,7 +132,6 @@ import org.gradle.util.Configurable;
 import org.gradle.util.Path;
 import org.gradle.util.internal.ClosureBackedAction;
 import org.gradle.util.internal.ConfigureUtil;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -160,6 +161,18 @@ public abstract class DefaultProject extends AbstractPluginAware implements Proj
     private static final ModelType<ExtensionContainer> EXTENSION_CONTAINER_MODEL_TYPE = ModelType.of(ExtensionContainer.class);
     private static final Logger BUILD_LOGGER = Logging.getLogger(Project.class);
 
+    /**
+     * Internal flag that, when set, makes any property or method that resolves through the
+     * parent-project chain throw {@link org.gradle.api.InvalidUserCodeException} at the lookup
+     * site. Used as a CI-side enforcement / pre-flight-check mechanism for the eventual
+     * Gradle 10 behavior in which parent-project lookup is removed entirely.
+     *
+     * <p>Wired into {@link ExtensibleDynamicObject#setFailOnParentAccess(boolean)} on every
+     * Project that has a parent.
+     */
+    public static final InternalOption<Boolean> FAIL_ON_PARENT_PROPERTY_LOOKUP =
+        InternalOptions.ofBoolean("org.gradle.internal.fail-on-parent-property-lookup", false);
+
     private final ProjectState owner;
     private final ClassLoaderScope classLoaderScope;
     private final ClassLoaderScope baseClassLoaderScope;
@@ -180,18 +193,23 @@ public abstract class DefaultProject extends AbstractPluginAware implements Proj
 
     private final String name;
 
-    private @Nullable Object group;
+    @Nullable
+    private Object group;
 
+    @Nullable
     private Object version;
 
+    @Nullable
     private Property<Object> status;
 
     private List<String> defaultTasks = new ArrayList<>();
 
     private final ProjectStateInternal state;
 
+    @Nullable
     private AntBuilderFactory antBuilderFactory;
 
+    @Nullable
     private AntBuilder ant;
 
     private final TaskContainerInternal taskContainer;
@@ -204,6 +222,7 @@ public abstract class DefaultProject extends AbstractPluginAware implements Proj
 
     private final DynamicLookupRoutine dynamicLookupRoutine;
 
+    @Nullable
     private String description;
 
     private boolean preparedForRuleBasedPlugins;
@@ -242,6 +261,7 @@ public abstract class DefaultProject extends AbstractPluginAware implements Proj
         @Nullable HierarchicalDynamicObject parentInherited = services.get(CrossProjectModelAccess.class).parentProjectDynamicInheritedScope(this);
         if (parentInherited != null) {
             extensibleDynamicObject.setParent(parentInherited);
+            extensibleDynamicObject.setFailOnParentAccess(services.get(InternalOptions.class).getBoolean(FAIL_ON_PARENT_PROPERTY_LOOKUP));
         }
         extensibleDynamicObject.addObject(taskContainer.getTasksAsDynamicObject(), ExtensibleDynamicObject.Location.AfterConvention);
 
@@ -602,7 +622,7 @@ public abstract class DefaultProject extends AbstractPluginAware implements Proj
     }
 
     @Override
-    public final boolean equals(Object obj) {
+    public final boolean equals(@Nullable Object obj) {
         if (!(obj instanceof ProjectInternal)) {
             return false;
         }
@@ -630,7 +650,6 @@ public abstract class DefaultProject extends AbstractPluginAware implements Proj
         return owner.getProjectPath();
     }
 
-    @NonNull
     @Override
     public ProjectIdentity getProjectIdentity() {
         return owner.getIdentity();
@@ -1152,17 +1171,19 @@ public abstract class DefaultProject extends AbstractPluginAware implements Proj
     }
 
     @Override
+    @Nullable
     public Object property(String propertyName) throws MissingPropertyException {
         return dynamicLookupRoutine.property(extensibleDynamicObject, propertyName);
     }
 
     @Override
+    @Nullable
     public Object findProperty(String propertyName) {
         return dynamicLookupRoutine.findProperty(extensibleDynamicObject, propertyName);
     }
 
     @Override
-    public void setProperty(String name, Object value) {
+    public void setProperty(String name, @Nullable Object value) {
         dynamicLookupRoutine.setProperty(extensibleDynamicObject, name, value);
     }
 
@@ -1502,6 +1523,7 @@ public abstract class DefaultProject extends AbstractPluginAware implements Proj
     }
 
     @Override
+    @Nullable
     public ProjectEvaluationListener stepEvaluationListener(ProjectEvaluationListener listener, Action<ProjectEvaluationListener> step) {
         ListenerBroadcast<ProjectEvaluationListener> original = this.evaluationListener;
         ListenerBroadcast<ProjectEvaluationListener> nextBatch = newProjectEvaluationListenerBroadcast();
