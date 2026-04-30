@@ -24,8 +24,8 @@ outputFile.set(layout.buildDirectory.file("output.txt"))    // evaluated later
 // Not Configuration Cache compatible
 tasks.register("printVersion") {
     doLast {
-        val version = project.version.toString()
-        println("Version is $version")
+        val eager_version = project.version.toString()
+        println("Version is $eager_version")
     }
 }
 // end::eager-task[]
@@ -33,10 +33,10 @@ tasks.register("printVersion") {
 // tag::lazy-task[]
 // Configuration Cache compatible
 tasks.register("printVersionLazy") {
-    val version: Property<String> = project.objects.property(String::class.java)
-    version.set(project.version.toString())
+    val lazy_version: Property<String> = project.objects.property(String::class.java)
+    lazy_version.set(project.version.toString())
     doLast {
-        println("Version is ${version.get()}")
+        println("Version is ${lazy_version.get()}")
     }
 }
 // end::lazy-task[]

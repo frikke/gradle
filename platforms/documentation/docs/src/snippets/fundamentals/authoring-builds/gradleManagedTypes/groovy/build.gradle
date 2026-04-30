@@ -2,10 +2,12 @@ plugins {
     id 'java'
 }
 
-tasks.register('myTask') {
-    ext.outputFile = project.objects.fileProperty()
+abstract class MyCustomTask extends DefaultTask {
+    @OutputFile
+    abstract RegularFileProperty getOutputFile()
 }
-def myTask = tasks.named('myTask').get()
+
+def myTask = tasks.register('myTask', MyCustomTask).get()
 
 // tag::eager-evaluation[]
 def version = project.version.toString()         // evaluated now
@@ -22,8 +24,8 @@ outputFile.set(layout.buildDirectory.file('output.txt'))    // evaluated later
 // Not Configuration Cache compatible
 tasks.register('printVersion') {
     doLast {
-        def ver = project.version.toString()
-        println("Version is $ver")
+        def eager_version = project.version.toString()
+        println "Version is $eager_version"
     }
 }
 // end::eager-task[]
@@ -31,10 +33,10 @@ tasks.register('printVersion') {
 // tag::lazy-task[]
 // Configuration Cache compatible
 tasks.register('printVersionLazy') {
-    def version = project.objects.property(String)
-    version.set(project.version.toString())
+    Property<String> lazy_version = project.objects.property(String)
+    lazy_version.set(project.version.toString())
     doLast {
-        println("Version is ${version.get()}")
+        println "Version is ${lazy_version.get()}"
     }
 }
 // end::lazy-task[]
