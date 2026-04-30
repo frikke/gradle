@@ -198,13 +198,10 @@ abstract class AbstractSmokeTest extends Specification {
     }
 
     private List<String> isolatedProjectsParameters() {
-        List<String> parameters = []
         if (GradleContextualExecuter.isIsolatedProjects()) {
-            parameters += [
-                "-D${StartParameterBuildOptions.IsolatedProjectsOption.PROPERTY_NAME}=true".toString()
-            ]
+            return [ "-D${StartParameterBuildOptions.IsolatedProjectsOption.PROPERTY_NAME}=true".toString() ]
         }
-        return parameters
+        return  []
     }
 
     private static List<String> outputParameters() {
