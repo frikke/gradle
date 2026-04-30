@@ -1606,6 +1606,81 @@ class ProjectFeatureDeclarationIntegrationTest extends AbstractIntegrationSpec i
         outputContains("model text = foo BAZ")
     }
 
+    def 'keeps project feature application order when the feature is applied to #order'() {
+        given:
+        PluginBuilder pluginBuilder = testScenario {
+            def type = projectType("testProjectType") {
+                definition {
+                    nested("dependencies", "Dependencies") {
+                        implementsDefinition("DependenciesBuildModel") {
+                            property "foo", String
+                        }
+                        property "foo", String
+                    }
+                }
+            }
+            projectFeature("spring") {
+                definition {
+                    property "foo", String
+                    buildModel {
+                        property "foo", String
+                    }
+                }
+                plugin {
+                    bindsFeatureTo type
+                    bindsFeatureTo type.definition.className + ".Dependencies"
+                    applyActionCode """
+                        String marker = (parent instanceof TestProjectTypeDefinition.Dependencies) ? "dependencies" : "type";
+                        System.out.println("spring applied to " + marker);
+                    """
+                }
+            }
+        }
+        pluginBuilder.addBuildScriptContent pluginBuildScriptForJava
+        pluginBuilder.prepareToExecute()
+
+        settingsFile() << pluginsFromIncludedBuild
+
+        buildFile() << """
+            testProjectType {
+                ${!dependenciesFirst ? """
+                spring {
+                    foo = "top-spring"
+                }""" : ""}
+
+                dependencies {
+                    spring {
+                        foo = "deps-spring"
+                    }
+                }
+
+                ${dependenciesFirst ? """
+                spring {
+                    foo = "top-spring"
+                }""" : ""}
+            }
+        """ << DeclarativeTestUtils.nonDeclarativeSuffixForKotlinDsl
+
+        when:
+        run(":printSpringDefinition1Configuration", ":printSpringDefinition2Configuration")
+
+        then:
+        outputContains("spring applied to type")
+        outputContains("spring applied to dependencies")
+        output.indexOf("spring applied to type") < output.indexOf("spring applied to dependencies") == !dependenciesFirst
+
+        and:
+        outputContains("definition foo = top-spring")
+        outputContains("definition foo = deps-spring")
+        outputContains("model foo = top-spring")
+        outputContains("model foo = deps-spring")
+
+        where:
+        dependenciesFirst | order
+        false             | "project type first"
+        true              | "dependencies block first"
+    }
+
     void assertDescriptionOrCause(ExecutionFailure failure, String expectedMessage) {
         if (currentDsl() == GradleDsl.DECLARATIVE) {
             failure.assertHasDescription(expectedMessage)
