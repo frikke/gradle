@@ -62,7 +62,6 @@ import java.util.Map;
  * coercion and error reporting. Enjoy.
  */
 public class BeanDynamicObject extends AbstractDynamicObject {
-    @Nullable
     private static final Method META_PROP_METHOD;
     private static final Field MISSING_PROPERTY_GET_METHOD;
     private static final Field MISSING_PROPERTY_SET_METHOD;
@@ -82,15 +81,9 @@ public class BeanDynamicObject extends AbstractDynamicObject {
 
     static {
         try {
-            Method metaPropMethod;
-            try {
-                metaPropMethod = MetaClassImpl.class.getDeclaredMethod("getMetaProperty", String.class, boolean.class);
-                metaPropMethod.setAccessible(true);
-            } catch (NoSuchMethodException e) {
-                // Groovy 4.0.30+ removed this private method; fall back to the public getMetaProperty(String) at the call site.
-                metaPropMethod = null;
-            }
-            META_PROP_METHOD = metaPropMethod;
+            // The 2-arg (name, useStatic) variant existed in Groovy 4.0.29 but was removed in 4.0.30; use the underlying 4-arg helper which is available in both.
+            META_PROP_METHOD = MetaClassImpl.class.getDeclaredMethod("getMetaProperty", Class.class, String.class, boolean.class, boolean.class);
+            META_PROP_METHOD.setAccessible(true);
             MISSING_PROPERTY_GET_METHOD = MetaClassImpl.class.getDeclaredField("propertyMissingGet");
             MISSING_PROPERTY_GET_METHOD.setAccessible(true);
             MISSING_PROPERTY_SET_METHOD = MetaClassImpl.class.getDeclaredField("propertyMissingSet");
@@ -398,9 +391,9 @@ public class BeanDynamicObject extends AbstractDynamicObject {
             boolean isInstrumented = metaClass instanceof InstrumentedMetaClass
                 && ((InstrumentedMetaClass) metaClass).interceptsPropertyAccess(name);
 
-            if (metaClass instanceof MetaClassImpl && !isInstrumented && META_PROP_METHOD != null) {
+            if (metaClass instanceof MetaClassImpl && !isInstrumented) {
                 try {
-                    return (MetaProperty) META_PROP_METHOD.invoke(metaClass, name, false);
+                    return (MetaProperty) META_PROP_METHOD.invoke(metaClass, metaClass.getTheClass(), name, false, false);
                 } catch (Throwable e) {
                     throw UncheckedException.throwAsUncheckedException(e);
                 }
