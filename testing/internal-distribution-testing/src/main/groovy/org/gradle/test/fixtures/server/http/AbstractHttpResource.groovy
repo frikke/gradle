@@ -31,7 +31,7 @@ abstract class AbstractHttpResource implements RemoteResource {
         return new URI(server.uri.scheme, server.uri.authority, path, null, null)
     }
 
-    abstract String getPath();
+    abstract protected String getPath();
 
     abstract void expectGet()
 
