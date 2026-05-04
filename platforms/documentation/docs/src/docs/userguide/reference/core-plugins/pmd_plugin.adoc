@@ -34,8 +34,8 @@ Note that PMD will run with the same Java version used to run Gradle.
 [[sec:pmd_supported_versions]]
 === Supported PMD versions
 
-Gradle supports PMD versions from 5.1.0 through 7.16.0.
-The default PMD version used by the plugin is 7.24.0.
+Gradle supports PMD versions from 5.1.0 through 7.24.0.
+
 Older PMD releases may work but are not tested against.
 Use link:{groovyDslPath}/org.gradle.api.plugins.quality.PmdExtension.html#org.gradle.api.plugins.quality.PmdExtension:toolVersion[`pmd.toolVersion`] to select a specific PMD version.
 
