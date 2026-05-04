@@ -91,7 +91,7 @@ public abstract class PmdExtension extends CodeQualityExtension {
     /**
      * The target jdk to use with pmd, 1.3, 1.4, 1.5, 1.6, 1.7 or jsp
      *
-     * @deprecated This property is a no-op for PMD 5.0 and later, which infer the language version from the rule sets.
+     * @deprecated This property has no effect for PMD 5.0 and later, which infer the language version from the rule sets.
      *     Scheduled to be removed in Gradle 10.
      */
     @Deprecated
@@ -105,7 +105,7 @@ public abstract class PmdExtension extends CodeQualityExtension {
      *
      * @param targetJdk The target jdk
      * @since 4.0
-     * @deprecated This property is a no-op for PMD 5.0 and later, which infer the language version from the rule sets.
+     * @deprecated This property has no effect for PMD 5.0 and later, which infer the language version from the rule sets.
      *     Scheduled to be removed in Gradle 10.
      */
     @Deprecated
@@ -116,7 +116,7 @@ public abstract class PmdExtension extends CodeQualityExtension {
 
     private static void nagAboutTargetJdkDeprecation(String methodWithParams) {
         DeprecationLogger.deprecateMethod(PmdExtension.class, methodWithParams)
-            .withAdvice("This property is a no-op for PMD 5.0 and later, which infer the language version from the rule sets. Remove the targetJdk configuration from your build.")
+            .withAdvice("This property has no effect for PMD 5.0 and later, which infer the language version from the rule sets. Remove the targetJdk configuration from your build.")
             .willBeRemovedInGradle10()
             .withUpgradeGuideSection(9, "deprecated_pmd_target_jdk")
             .nagUser();
@@ -135,7 +135,7 @@ public abstract class PmdExtension extends CodeQualityExtension {
      * Sets the target jdk used with pmd.
      *
      * @param value The value for the target jdk as defined by {@link TargetJdk#toVersion(Object)}
-     * @deprecated This property is a no-op for PMD 5.0 and later, which infer the language version from the rule sets.
+     * @deprecated This property has no effect for PMD 5.0 and later, which infer the language version from the rule sets.
      *     Scheduled to be removed in Gradle 10.
      */
     @Deprecated

@@ -99,12 +99,12 @@ public abstract class PmdPlugin extends AbstractCodeQualityPlugin<Pmd> {
     /**
      * Returns the default {@link TargetJdk} for the given Java source compatibility version.
      *
-     * @deprecated The {@code targetJdk} property is a no-op for PMD 5.0 and later. Scheduled to be removed in Gradle 10.
+     * @deprecated The {@code targetJdk} property has no effect for PMD 5.0 and later. Scheduled to be removed in Gradle 10.
      */
     @Deprecated
     public TargetJdk getDefaultTargetJdk(JavaVersion javaVersion) {
         DeprecationLogger.deprecateMethod(PmdPlugin.class, "getDefaultTargetJdk(JavaVersion)")
-            .withAdvice("This method is only used to compute the deprecated PMD targetJdk property, which is a no-op for PMD 5.0 and later.")
+            .withAdvice("This method is only used to compute the deprecated PMD targetJdk property, which has no effect for PMD 5.0 and later.")
             .willBeRemovedInGradle10()
             .withUpgradeGuideSection(9, "deprecated_pmd_target_jdk")
             .nagUser();

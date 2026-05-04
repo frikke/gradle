@@ -25,13 +25,13 @@ class PmdTargetJdkDeprecationIntegrationTest extends AbstractIntegrationSpec {
 
     private static final String PMD_EXTENSION_DEPRECATION = "The PmdExtension.setTargetJdk(TargetJdk) method has been deprecated. " +
         "This is scheduled to be removed in Gradle 10. " +
-        "This property is a no-op for PMD 5.0 and later, which infer the language version from the rule sets. " +
+        "This property has no effect for PMD 5.0 and later, which infer the language version from the rule sets. " +
         "Remove the targetJdk configuration from your build. " +
         "Consult the upgrading guide for further information: " + UPGRADE_GUIDE_URL
 
     private static final String PMD_TASK_DEPRECATION = "The Pmd.setTargetJdk(TargetJdk) method has been deprecated. " +
         "This is scheduled to be removed in Gradle 10. " +
-        "This property is a no-op for PMD 5.0 and later, which infer the language version from the rule sets. " +
+        "This property has no effect for PMD 5.0 and later, which infer the language version from the rule sets. " +
         "Remove the targetJdk configuration from your build. " +
         "Consult the upgrading guide for further information: " + UPGRADE_GUIDE_URL
 
@@ -41,7 +41,7 @@ class PmdTargetJdkDeprecationIntegrationTest extends AbstractIntegrationSpec {
 
     private static final String PMD_EXTENSION_OBJECT_DEPRECATION = "The PmdExtension.setTargetJdk(Object) method has been deprecated. " +
         "This is scheduled to be removed in Gradle 10. " +
-        "This property is a no-op for PMD 5.0 and later, which infer the language version from the rule sets. " +
+        "This property has no effect for PMD 5.0 and later, which infer the language version from the rule sets. " +
         "Remove the targetJdk configuration from your build. " +
         "Consult the upgrading guide for further information: " + UPGRADE_GUIDE_URL
 

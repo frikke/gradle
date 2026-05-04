@@ -64,7 +64,7 @@ This includes:
 - `PmdPlugin.getDefaultTargetJdk(JavaVersion)`
 
 These were used by PMD versions older than 5.0 to select the target Java language level via Ant's `targetjdk` attribute.
-PMD 5.0 and later infer the language version from the configured rule sets, so this property has been a no-op for all supported PMD versions.
+PMD 5.0 and later infer the language version from the configured rule sets, so this property has been a no-op for all supported PMD versions.  Gradle does not support PMD versions earlier than PMD 5.1.0.
 
 There is no replacement.
 Remove any `targetJdk` configuration from your build.
