@@ -89,7 +89,7 @@ class IdeProvisioningPlugin : Plugin<Project> {
             }
 
             dependencies {
-                add(androidStudioArchive.name, androidStudioDependencyCoordinates(androidStudioVersion).get())
+                add(androidStudioArchive.name, androidStudioDependencyCoordinates(androidStudioVersion))
                 add(intellijIdeaArchive.name, intellijIdeaInstallerCoordinates(intellijIdeaVersion))
             }
 
