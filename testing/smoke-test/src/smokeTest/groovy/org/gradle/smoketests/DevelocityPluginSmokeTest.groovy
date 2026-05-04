@@ -178,6 +178,9 @@ class DevelocityPluginSmokeTest extends AbstractSmokeTest {
     private static final VersionNumber FIRST_VERSION_UNDER_DEVELOCITY_BRAND = VersionNumber.parse("3.17")
     private static final VersionNumber FIRST_VERSION_WITH_IMPORT_JUNIT_XML_REPORTS = VersionNumber.parse("3.17")
     private static final VersionNumber FIRST_VERSION_WITHOUT_CROSS_PROJECT_IMPORT_JUNIT_XML_REPORTS = VersionNumber.parse("4.4")
+    private static final VersionNumber FIRST_VERSION_WITHOUT_PARENT_PROPERTY_LOOKUP = VersionNumber.parse("4.0")
+
+    private String currentPluginVersion
 
     def "coverage at least up to auto-applied version"() {
         expect:
@@ -393,6 +396,7 @@ public class MyFlakyTest {
 
     @Requires(TestExecutionPreconditions.NotConfigCached)
     def "can inject plugin #pluginVersion in #ci using '#ciScriptVersion' script version"() {
+        currentPluginVersion = pluginVersion
         def versionNumber = VersionNumber.parse(pluginVersion)
         def initScript = "init-script.gradle"
         file(initScript) << getCiInjectionScriptContent(ci)
@@ -544,10 +548,23 @@ public class MyFlakyTest {
 
     SmokeTestGradleRunner scanRunner(String... args) {
         // Run with --build-cache to test also build cache events
-        runner("build", "-Dscan.dump", "--build-cache", *args)
+        def runner = runner("build", "-Dscan.dump", "--build-cache", *args)
+        if (currentPluginVersion != null && VersionNumber.parse(currentPluginVersion) < FIRST_VERSION_WITHOUT_PARENT_PROPERTY_LOOKUP) {
+            // Plugin check-in only deprecates once per daemon, so multiple builds in the same test
+            // would only see the warning on the first run.
+            runner.maybeExpectLegacyDeprecationWarning(
+                "Usage of the Develocity plugin ${currentPluginVersion} has been deprecated. " +
+                    "This will fail with an error in Gradle 10. " +
+                    "The plugin application will be ignored. " +
+                    "Upgrade to version 4.0 or later of the Develocity plugin. " +
+                    "Consult the upgrading guide for further information: https://docs.gradle.org/${GradleVersion.current().version}/userguide/upgrading_version_9.html#deprecated_develocity_plugin_pre_4_0"
+            )
+        }
+        runner
     }
 
     void usePluginVersion(String version) {
+        currentPluginVersion = version
         def develocityPlugin = VersionNumber.parse(version) >= VersionNumber.parse("3.17")
         def gradleEnterprisePlugin = VersionNumber.parse(version) >= VersionNumber.parse("3.0")
         if (develocityPlugin) {
