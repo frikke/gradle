@@ -42,14 +42,13 @@ The previous step will help you identify potential problems by issuing deprecati
 === Deprecations
 
 [[deprecated_develocity_plugin_pre_4_0]]
-==== Earliest supported Develocity plugin version starting in Gradle 10 is 4.0
+==== Develocity plugin versions before 4.0 are no longer supported in Gradle 10
 
-Starting in Gradle 10, the earliest supported Develocity plugin version is 4.0.
-The plugin versions before 4.0 rely on Gradle's implicit parent-project property lookup, which is being removed in Gradle 10, and will be ignored when applied.
+Gradle 10 requires Develocity plugin 4.0 or later.
+Earlier versions rely on Gradle's implicit parent-project property lookup, which will be removed in Gradle 10 and silently ignored if applied.
 
-Upgrade to version 4.0 or later of the Develocity plugin.
-You can find the link:https://plugins.gradle.org/plugin/com.gradle.develocity[latest available version on the Gradle Plugin Portal].
-More information on the compatibility can be found link:https://gradle.com/help/gradle-plugin-compatibility/[here].
+Upgrade to the link:https://plugins.gradle.org/plugin/com.gradle.develocity[latest Develocity plugin] from the Gradle Plugin Portal.
+See the link:https://gradle.com/help/gradle-plugin-compatibility/[Develocity plugin compatibility matrix] for details.
 
 [[deprecated_maven_artifact_urls]]
 ==== Deprecation of `artifactUrls` on Maven repositories
