@@ -16,6 +16,7 @@
 
 package org.gradle.smoketests
 
+import org.gradle.integtests.fixtures.ToBeFixedForIsolatedProjects
 import org.gradle.integtests.fixtures.executer.GradleContextualExecuter
 import org.gradle.internal.enterprise.core.GradleEnterprisePluginManager
 import org.gradle.plugin.management.internal.autoapply.AutoAppliedDevelocityPlugin
@@ -192,7 +193,11 @@ class DevelocityPluginSmokeTest extends AbstractSmokeTest {
             .build().output.contains("Build scan written to")
 
         where:
-        version << SUPPORTED
+        version << (
+            GradleContextualExecuter.isolatedProjects
+                ? SUPPORTED.findAll { FIRST_VERSION_SUPPORTING_ISOLATED_PROJECTS <= VersionNumber.parse(it) }
+                : SUPPORTED
+        )
     }
 
     @Issue("https://github.com/gradle/gradle/issues/34252")
@@ -262,20 +267,6 @@ public class MyFlakyTest {
 
         where:
         version << SUPPORTED.grep { String version -> VersionNumber.parse(version) >= FIRST_VERSION_UNDER_DEVELOCITY_BRAND }
-    }
-
-    @Requires(value = TestExecutionPreconditions.NotConfigCached, reason = "Isolated projects implies config cache")
-    def "can use plugin #version with isolated projects"() {
-        when:
-        usePluginVersion version
-
-        then:
-        scanRunner("-Dorg.gradle.unsafe.isolated-projects=true")
-            .build().output.contains("Build scan written to")
-
-        where:
-        version << SUPPORTED
-            .findAll { FIRST_VERSION_SUPPORTING_ISOLATED_PROJECTS <= VersionNumber.parse(it) }
     }
 
     @Requires(value = TestExecutionPreconditions.NotConfigCached, reason = "Isolated projects implies config cache")
@@ -467,6 +458,7 @@ public class MyFlakyTest {
         ciScriptVersion = ci.gitRef
     }
 
+    @ToBeFixedForIsolatedProjects(because = "Test specifically verifies IP unsafe behavior")
     def "can use ImportJUnitXmlReports across projects"() {
         when:
         usePluginVersion version
