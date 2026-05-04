@@ -20,7 +20,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.DocumentationRegistry
 import org.gradle.execution.RunRootBuildWorkBuildOperationType
+import org.gradle.integtests.fixtures.executer.GradleContextualExecuter
 import org.gradle.integtests.fixtures.executer.GradleExecuter
+import org.gradle.internal.enterprise.impl.legacy.DevelocityPluginCompatibility
+import org.gradle.util.internal.VersionNumber
 import org.gradle.internal.enterprise.core.GradleEnterprisePluginManager
 import org.gradle.internal.operations.notify.BuildOperationFinishedNotification
 import org.gradle.internal.operations.notify.BuildOperationNotificationListener
@@ -218,6 +221,12 @@ abstract class BaseBuildScanPluginCheckInFixture {
      * Develocity plugin versions affected by the implicit parent-project property lookup.
      */
     void expectParentPropertyLookupDeprecation(GradleExecuter executer, String pluginVersion) {
+        // Under IP, plugin versions older than 3.15 hit the unsupported-with-IP path
+        // and short-circuit before the pre-4.0 deprecation, so the warning is not emitted.
+        if (GradleContextualExecuter.isIsolatedProjects()
+            && DevelocityPluginCompatibility.isUnsupportedWithIsolatedProjects(VersionNumber.parse(pluginVersion))) {
+            return
+        }
         executer.expectDocumentedDeprecationWarning(
             "Usage of the Develocity plugin ${pluginVersion} has been deprecated. " +
                 "This will fail with an error in Gradle 10. " +
